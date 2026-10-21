@@ -220,11 +220,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1791406932,
-        "narHash": "sha256-c/L2F4BkHV/QPF1aS/uEp58WAjvqsWTGNKJsx0wcmS0=",
+        "lastModified": 1792174851,
+        "narHash": "sha256-rYpcruASAhkD4F+sYiMFCEYVv2xu0WBj9hbgM4w5dfQ=",
         "owner": "systemfsoftware",
         "repo": "pnpm-release-management",
-        "rev": "aaba9ed07a06a9267fb728c4349437566bfbedaf",
+        "rev": "7e9091b592856360be87a824e4a97bbc0a32c428",
         "type": "github"
       },
       "original": {
