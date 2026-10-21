@@ -19,7 +19,8 @@
     "coverage/**",
     "reports/**",
     "**/snapshots/*.md",
-    "repos/**"
+    "repos/**",
+    "**/etc/*.api.md"
   ],
   "plugins": [
     "https://plugins.dprint.dev/typescript-0.96.1.wasm",
