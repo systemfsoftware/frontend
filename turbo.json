@@ -54,6 +54,7 @@
       "outputs": [],
       "dependsOn": [
         "^build",
+        "build",
         "generate"
       ],
       "cache": true
