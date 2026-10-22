@@ -18,3 +18,5 @@ apps/site-e2e/artifacts/
 .journeys/
 .sfs-deps
 .cache/
+temp/
+.vitest/

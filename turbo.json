@@ -31,7 +31,10 @@
         "tsconfig.json",
         "tsconfig.*.json",
         "package.json",
-        "tsdown.config.*"
+        "tsdown.config.*",
+        "api-extractor.json",
+        "api-extractor.*.json",
+        "etc/*.api.md"
       ],
       "outputs": [
         "dist/**"
@@ -51,6 +54,7 @@
       "outputs": [],
       "dependsOn": [
         "^build",
+        "build",
         "generate"
       ],
       "cache": true
@@ -105,6 +109,58 @@
         "NODE_ENV",
         "CI",
         "AGENT"
+      ],
+      "passThroughEnv": [
+        "PLAYWRIGHT_BROWSERS_PATH",
+        "FONTCONFIG_FILE"
+      ],
+      "cache": true
+    },
+    "test:browser": {
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "^build",
+        "build"
+      ],
+      "outputs": [],
+      "env": [
+        "NODE_ENV",
+        "CI",
+        "AGENT"
+      ],
+      "passThroughEnv": [
+        "PLAYWRIGHT_BROWSERS_PATH",
+        "FONTCONFIG_FILE"
+      ],
+      "cache": true
+    },
+    "test:types": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "tstyche.json",
+        "test-types/**",
+        "tsconfig.json",
+        "tsconfig.*.json",
+        "!**/*.md"
+      ],
+      "outputLogs": "errors-only",
+      "dependsOn": [
+        "^build",
+        "build"
+      ],
+      "outputs": [],
+      "cache": true
+    },
+    "lint:tsgo": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "tsconfig.json",
+        "tsconfig.*.json",
+        "!**/*.md"
+      ],
+      "outputs": [],
+      "env": [
+        "TSGO_FORMAT"
       ],
       "cache": true
     },

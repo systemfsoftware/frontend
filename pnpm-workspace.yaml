@@ -13,8 +13,14 @@ catalog:
   "@commitlint/cli": 21.2.3
   "@commitlint/config-conventional": 21.2.3
   "@commitlint/types": 21.2.3
-  "@effect/tsgo": 0.51.0
+  "@effect/tsgo": 0.51.1
+  "@microsoft/api-extractor": 7.59.4
   "@rolldown/plugin-babel": 0.2.4
+  "@storybook/addon-vitest": 10.6.2
+  "@storybook/react-vite": 10.6.2
+  "@systemfsoftware/arethetypeswrong-cli": file:.sfs-deps/arethetypeswrong-cli-4.2.0.tgz
+  "@systemfsoftware/conformance-spec": file:.sfs-deps/conformance-spec-1.0.0.tgz
+  "@systemfsoftware/differential-spec": file:.sfs-deps/differential-spec-1.0.1.tgz
   "@systemfsoftware/effect-cell-types": file:.sfs-deps/effect-cell-types-12.0.0.tgz
   "@systemfsoftware/effect-gherkin-spec": file:.sfs-deps/effect-gherkin-spec-7.0.1.tgz
   "@systemfsoftware/effect-schema-discovery": file:.sfs-deps/effect-schema-discovery-2.0.0.tgz
@@ -26,6 +32,7 @@ catalog:
   "@systemfsoftware/oxlint-config-cell-architecture": file:.sfs-deps/oxlint-config-cell-architecture-4.0.0.tgz
   "@systemfsoftware/oxlint-config-dmmf": file:.sfs-deps/oxlint-config-dmmf-2.0.0.tgz
   "@systemfsoftware/oxlint-config-recommended": file:.sfs-deps/oxlint-config-recommended-4.0.0.tgz
+  "@systemfsoftware/oxlint-config-rule-authoring": file:.sfs-deps/oxlint-config-rule-authoring-1.1.0.tgz
   "@systemfsoftware/oxlint-ignorer-config": file:.sfs-deps/oxlint-ignorer-config-0.1.1.tgz
   "@systemfsoftware/oxlint-plugin-cell-architecture": file:.sfs-deps/oxlint-plugin-cell-architecture-5.0.0.tgz
   "@systemfsoftware/oxlint-plugin-dmmf-workflow": file:.sfs-deps/oxlint-plugin-dmmf-workflow-7.0.0.tgz
@@ -49,30 +56,60 @@ catalog:
   "@systemfsoftware/stryker-js-typescript-checker": file:.sfs-deps/stryker-js-typescript-checker-8.2.1.tgz
   "@systemfsoftware/stryker-js-vitest-runner": file:.sfs-deps/stryker-js-vitest-runner-8.1.1.tgz
   "@systemfsoftware/stryker-js-vm-runner": file:.sfs-deps/stryker-js-vitest-runner-8.1.1.tgz
+  "@systemfsoftware/stryker-config": file:.sfs-deps/stryker-config-0.1.0.tgz
   "@systemfsoftware/tsconfig": file:.sfs-deps/tsconfig-2.0.1.tgz
+  "@systemfsoftware/tsdown-config": file:.sfs-deps/tsdown-config-0.1.0.tgz
   "@systemfsoftware/vitest": file:.sfs-deps/vitest-2.0.0.tgz
+  "@systemfsoftware/vitest-config": file:.sfs-deps/vitest-config-0.1.0.tgz
   "@systemfsoftware/xstate": file:.sfs-deps/xstate-6.0.0-alpha.64.tgz
   "@tanstack/react-router": 1.170.41
   "@tanstack/react-start": 1.168.60
   "@tanstack/router-cli": 1.167.40
+  "@testing-library/dom": 10.4.2
+  "@testing-library/react": 16.3.3
   "@types/node": 24.19.1
   "@types/react": 19.3.0
   "@types/react-dom": 19.3.0
+  "@types/scheduler": 0.28.0
+  "@vitest/browser": 5.0.5
+  "@vitest/browser-playwright": 5.0.5
+  "@vitest/coverage-istanbul": 5.0.5
   "@vitejs/plugin-react": 6.1.2
   alchemy: 2.0.0-beta.80
   babel-plugin-react-compiler: 1.0.0
-  effect: 4.0.1
+  effect: 4.0.5
+  fast-check: 4.10.2
   lint-staged: 17.6.0
-  oxlint: 1.82.0
-  oxlint-tsgolint: 7.0.2001
+  oxlint: 1.87.0
+  oxlint-tsgolint: 7.0.2003
   playwright: 1.63.0
-  react: 19.3.0
-  react-dom: 19.3.0
+  react: ^19.3.0
+  react-dom: ^19.3.0
+  react-error-boundary: 6.1.6
+  rimraf: 6.1.3
+  scheduler: 0.28.0
+  storybook: 10.6.2
+  tsdown: 0.23.0
+  tstyche: 7.2.5
   turbo: 2.11.7
+  type-fest: ^5.10.0
   typescript: 7.0.2
-  vite: 8.3.2
-  vitest: 5.0.3
+  vite: 8.3.4
+  vitest: ^5.0.5
   wrangler: 4.147.0
+catalogs:
+  oxlint:
+    "@oxlint/plugins": 1.87.0
+    oxlint: 1.87.0
+    oxlint-tsgolint: 7.0.2003
+  peers:
+    effect: ^4
+  stryker:
+    "@systemfsoftware/stryker-ignorer-effect-schema-declarations": file:.sfs-deps/stryker-ignorer-effect-schema-declarations-0.2.0.tgz
+    "@systemfsoftware/stryker-ignorer-in-source-vitest-block": file:.sfs-deps/stryker-ignorer-in-source-vitest-block-0.1.1.tgz
+    "@systemfsoftware/stryker-js": file:.sfs-deps/stryker-js-17.0.2.tgz
+    "@systemfsoftware/stryker-js-typescript-checker": file:.sfs-deps/stryker-js-typescript-checker-8.2.1.tgz
+    "@systemfsoftware/stryker-js-vitest-runner": file:.sfs-deps/stryker-js-vitest-runner-8.1.1.tgz
 catalogMode: prefer
 ignoreScripts: true
 minimumReleaseAge: 1440
@@ -81,6 +118,9 @@ minimumReleaseAgeExclude:
   - "@effect/*"
 verifyDepsBeforeRun: warn
 overrides:
+  "@systemfsoftware/arethetypeswrong-cli": "catalog:"
+  "@systemfsoftware/conformance-spec": "catalog:"
+  "@systemfsoftware/differential-spec": "catalog:"
   "@systemfsoftware/effect-cell-types": "catalog:"
   "@systemfsoftware/effect-gherkin-spec": "catalog:"
   "@systemfsoftware/effect-schema-discovery": "catalog:"
@@ -92,6 +132,7 @@ overrides:
   "@systemfsoftware/oxlint-config-cell-architecture": "catalog:"
   "@systemfsoftware/oxlint-config-dmmf": "catalog:"
   "@systemfsoftware/oxlint-config-recommended": "catalog:"
+  "@systemfsoftware/oxlint-config-rule-authoring": "catalog:"
   "@systemfsoftware/oxlint-ignorer-config": "catalog:"
   "@systemfsoftware/oxlint-plugin-cell-architecture": "catalog:"
   "@systemfsoftware/oxlint-plugin-dmmf-workflow": "catalog:"
@@ -115,13 +156,23 @@ overrides:
   "@systemfsoftware/stryker-js-typescript-checker": "catalog:"
   "@systemfsoftware/stryker-js-vitest-runner": "catalog:"
   "@systemfsoftware/stryker-js-vm-runner": "catalog:"
+  "@systemfsoftware/stryker-config": "catalog:"
   "@systemfsoftware/tsconfig": "catalog:"
+  "@systemfsoftware/tsdown-config": "catalog:"
   "@systemfsoftware/vitest": "catalog:"
+  "@systemfsoftware/vitest-config": "catalog:"
   "@systemfsoftware/xstate": "catalog:"
+  esbuild: ^0.28.2
+  rolldown-plugin-dts: 0.28.6
   workerd: 1.20261005.1
 packages:
   - apps/*
   - packages/*
+  - packages/atom/*
+  - packages/gherkin/*
+  - packages/oxlint-presets/*
+patchedDependencies:
+  rolldown-plugin-dts@0.28.6: patches/rolldown-plugin-dts@0.28.6.patch
 supportedArchitectures:
   os: [linux]
   cpu: [x64, arm64]

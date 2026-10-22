@@ -1,0 +1,82 @@
+{
+  "name": "@systemfsoftware/oxlint-config-frontend",
+  "license": "Apache-2.0",
+  "version": "0.1.0",
+  "author": "TODO <todo@example.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/systemfsoftware/frontend.git",
+    "directory": "packages/oxlint-presets/oxlint-config-frontend"
+  },
+  "homepage": "https://github.com/systemfsoftware/frontend/tree/main/packages/oxlint-presets/oxlint-config-frontend#readme",
+  "bugs": "https://github.com/systemfsoftware/frontend/issues",
+  "description": "Frontend Oxlint configuration: the systemfsoftware recommended preset plus the React rules and the ui-state and storybook-testing bans.",
+  "keywords": [
+    "oxlint",
+    "oxlint-config",
+    "preset",
+    "react",
+    "effect-atom",
+    "storybook",
+    "typescript"
+  ],
+  "type": "module",
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "@systemfsoftware/source": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.mjs"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsdown -l warn",
+    "typecheck": "tsc -b",
+    "lint": "f=${OXLINT_FORMAT:-${AGENT:+agent}}; oxlint . --format=${f:-default}",
+    "attw": "attw --pack .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@oxlint/plugins": "catalog:oxlint",
+    "@systemfsoftware/oxlint-config-recommended": "4.0.0",
+    "@systemfsoftware/oxlint-plugin-effect-platform": "2.0.0",
+    "oxlint": "catalog:oxlint",
+    "oxlint-tsgolint": "catalog:oxlint"
+  },
+  "devDependencies": {
+    "@systemfsoftware/arethetypeswrong-cli": "catalog:",
+    "@systemfsoftware/oxlint-config-rule-authoring": "^1.1.0",
+    "@systemfsoftware/tsconfig": "^2.0.1",
+    "@systemfsoftware/tsdown-config": "^0.1.0",
+    "@systemfsoftware/vitest-config": "^0.1.0",
+    "@types/node": "catalog:",
+    "effect": "catalog:",
+    "oxlint": "catalog:oxlint",
+    "oxlint-tsgolint": "catalog:oxlint",
+    "rimraf": "catalog:",
+    "tsdown": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "peerDependencies": {
+    "effect": "catalog:peers",
+    "oxlint": "catalog:oxlint",
+    "oxlint-tsgolint": "catalog:oxlint",
+    "typescript": ">=5.0.0"
+  },
+  "publishConfig": {
+    "access": "public",
+    "provenance": true,
+    "exports": {
+      ".": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.mjs"
+      },
+      "./package.json": "./package.json"
+    }
+  }
+}

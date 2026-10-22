@@ -1,0 +1,7 @@
+packs:
+  - source: compound-packs/ui-state
+  - source: compound-packs/storybook-testing
+  - source: https://github.com/systemfsoftware/systemfsoftware
+    ref: d1ab631935c9439bcd16abf2894b09b843494701
+    path: compound-packs
+    pack: [cell-architecture, boundary-testing, schema-laws, package-topology, mutation-discipline, turbo-task-graph]
