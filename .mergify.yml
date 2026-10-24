@@ -1,37 +1,46 @@
-# Mergify merges every PR into main. A PR that meets queue_conditions is queued automatically; nobody comments.
-# The first PR in this repository (SYS-440) is a bootstrap merge: kiro-systemf merges it once with
-# --match-head-commit. From the next PR the queue takes over.
+# Mergify: policy lives in systemfsoftware/.github (.mergify.yml). This file names this repo's CI checks.
+extends: .github
 queue_rules:
   - name: default
-    merge_method: squash
     queue_conditions:
-      - base = main
+      # Repeats the org policy's merge authority (YAML anchors are not inherited): a Kiro approval, or a
+      # Dependabot patch/minor update. Keep it in step with systemfsoftware/.github.
+      - or:
+          - approved-reviews-by = kiro-systemf[bot]
+          - and:
+              - author = dependabot[bot]
+              - dependabot-update-type != version-update:semver-major
+              - or:
+                  - dependabot-update-type = version-update:semver-patch
+                  - dependabot-update-type = version-update:semver-minor
+                  - "title ~= (?i)\\bthe [a-z0-9@/._-]*(minor|patch)[a-z0-9@/._-]* group\\b"
       - -draft
       - -label = hold
-      - "approved-reviews-by = kiro-systemf[bot]"
-      - "#changes-requested-reviews-by = 0"
+      - check-success = check (dist)
       - check-success = check (format)
       - check-success = check (lint)
-      - check-success = check (typecheck)
-      - check-success = check (test)
-      - check-success = check (dist)
       - check-success = check (sfs-sources)
+      - check-success = check (test)
+      - check-success = check (typecheck)
       - check-success = journeys
       - check-success = rules
-      - check-success = lint PR commits
-      - check-success = changeset · shared tooling
+      - or:
+          - check-success = lint PR commits
+          - check-skipped = lint PR commits
+      - or:
+          - check-success = changeset · shared tooling / a publishable-package change needs an intent
+          - check-skipped = changeset · shared tooling / a publishable-package change needs an intent
     merge_conditions:
+      - check-success = check (dist)
       - check-success = check (format)
       - check-success = check (lint)
-      - check-success = check (typecheck)
-      - check-success = check (test)
-      - check-success = check (dist)
       - check-success = check (sfs-sources)
+      - check-success = check (test)
+      - check-success = check (typecheck)
       - check-success = journeys
       - check-success = rules
-      - check-success = lint PR commits
-      - check-success = changeset · shared tooling
 
+# A PR enters the queue only through a queue action; queue_conditions decide which PRs it accepts.
 pull_request_rules:
   - name: queue when ready
     conditions:
