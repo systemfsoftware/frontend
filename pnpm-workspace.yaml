@@ -14,8 +14,8 @@ catalog:
   "@commitlint/config-conventional": 21.2.3
   "@commitlint/types": 21.2.3
   "@effect/opentelemetry": 4.0.7
-  "@effect/platform-node": 4.0.7
-  "@effect/platform-node-shared": 4.0.7
+  "@effect/platform-node": 4.0.5
+  "@effect/platform-node-shared": 4.0.5
   "@effect/sql-d1": 4.0.7
   "@effect/sql-sqlite-do": 4.0.7
   "@effect/tsgo": 0.63.0
