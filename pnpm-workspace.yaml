@@ -13,7 +13,12 @@ catalog:
   "@commitlint/cli": 21.2.3
   "@commitlint/config-conventional": 21.2.3
   "@commitlint/types": 21.2.3
-  "@effect/tsgo": 0.51.1
+  "@effect/opentelemetry": 4.0.7
+  "@effect/platform-node": 4.0.7
+  "@effect/platform-node-shared": 4.0.7
+  "@effect/sql-d1": 4.0.7
+  "@effect/sql-sqlite-do": 4.0.7
+  "@effect/tsgo": 0.63.0
   "@microsoft/api-extractor": 7.59.4
   "@rolldown/plugin-babel": 0.2.4
   "@storybook/addon-vitest": 10.6.2
@@ -77,11 +82,11 @@ catalog:
   "@vitejs/plugin-react": 6.1.2
   alchemy: 2.0.0-beta.80
   babel-plugin-react-compiler: 1.0.0
-  effect: 4.0.5
+  effect: 4.0.7
   fast-check: 4.10.2
   lint-staged: 17.6.0
-  oxlint: 1.87.0
-  oxlint-tsgolint: 7.0.2003
+  oxlint: ~1.90.0
+  oxlint-tsgolint: 7.0.2005
   playwright: 1.63.0
   react: ^19.3.0
   react-dom: ^19.3.0
@@ -99,9 +104,9 @@ catalog:
   wrangler: 4.147.0
 catalogs:
   oxlint:
-    "@oxlint/plugins": 1.87.0
-    oxlint: 1.87.0
-    oxlint-tsgolint: 7.0.2003
+    "@oxlint/plugins": ~1.90.0
+    oxlint: ~1.90.0
+    oxlint-tsgolint: 7.0.2005
   peers:
     effect: ^4
   stryker:
@@ -162,6 +167,13 @@ overrides:
   "@systemfsoftware/vitest": "catalog:"
   "@systemfsoftware/vitest-config": "catalog:"
   "@systemfsoftware/xstate": "catalog:"
+  "@effect/opentelemetry": "catalog:"
+  "@effect/platform-node": "catalog:"
+  "@effect/platform-node-shared": "catalog:"
+  "@effect/sql-d1": "catalog:"
+  "@effect/sql-sqlite-do": "catalog:"
+  "@effect/tsgo": "catalog:"
+  effect: "catalog:"
   esbuild: ^0.28.2
   rolldown-plugin-dts: 0.28.6
   workerd: 1.20261005.1
