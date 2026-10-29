@@ -13,11 +13,11 @@ catalog:
   "@commitlint/cli": 21.2.3
   "@commitlint/config-conventional": 21.2.3
   "@commitlint/types": 21.2.3
-  "@effect/opentelemetry": 4.0.6
+  "@effect/opentelemetry": 4.0.5
   "@effect/platform-node": 4.0.5
   "@effect/platform-node-shared": 4.0.5
-  "@effect/sql-d1": 4.0.6
-  "@effect/sql-sqlite-do": 4.0.6
+  "@effect/sql-d1": 4.0.5
+  "@effect/sql-sqlite-do": 4.0.5
   "@effect/tsgo": 0.63.0
   "@microsoft/api-extractor": 7.59.4
   "@rolldown/plugin-babel": 0.2.4
@@ -82,7 +82,7 @@ catalog:
   "@vitejs/plugin-react": 6.1.2
   alchemy: 2.0.0-beta.80
   babel-plugin-react-compiler: 1.0.0
-  effect: 4.0.6
+  effect: 4.0.5
   fast-check: 4.10.2
   lint-staged: 17.6.0
   oxlint: ~1.90.0
