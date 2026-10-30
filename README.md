@@ -57,6 +57,7 @@ read (impure) ──► decode (pure) ──► decide (pure) ──► shape (p
 | 🎨 **dprint**             | Fast, deterministic code and markdown formatting (`dprint.json`)                       |
 | 🧪 **Vitest**             | Fast unit and integration test runner with TypeScript support                          |
 | 🔬 **Stryker**            | Mutation testing ensuring tests fail when bugs are introduced                          |
+| 📝 **Changesets**         | Automated versioning and changelogs, released as git tags via shared tooling           |
 | 🪝 **Husky & Commitlint** | Git hooks enforcing conventional commit standards                                      |
 | 🌳 **Worktrunk Scripts**  | Deno-powered git worktree lifecycle hooks for isolated agent work                      |
 

@@ -50,3 +50,8 @@ jobs:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha }}
         run: nix develop --command sandbox -- pnpm exec commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+      - name: Require a change intent for every publishable-package change
+        if: github.event_name == 'pull_request' && github.head_ref != 'changeset-release/main'
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: nix develop --command changeset-management check "$BASE_SHA"

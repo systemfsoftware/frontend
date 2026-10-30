@@ -1,0 +1,25 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+jobs:
+  release:
+    name: release · shared tooling
+    uses: systemfsoftware/pnpm-release-management/.github/workflows/release.yml@main
+    with:
+      ci-workflow: check.yml
+    permissions:
+      contents: write
+      pull-requests: write
+      actions: write
