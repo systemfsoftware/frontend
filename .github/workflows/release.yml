@@ -14,11 +14,30 @@ permissions:
   actions: write
 
 jobs:
+  types:
+    name: types · attw
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: cachix/install-nix-action@v31
+      - name: Lift the ubuntu-24.04 AppArmor block on user namespaces
+        run: sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0
+      - name: Create the sandbox's output directory
+        run: mkdir -p .cache
+      - name: Install through the sandbox, offline from the Nix pnpm store
+        run: nix develop --command pnpm bootstrap
+      - name: Check the published type shape of every publishable package
+        run: nix develop --command pnpm attw
+
   release:
     name: release · shared tooling
+    needs: types
     uses: systemfsoftware/pnpm-release-management/.github/workflows/release.yml@main
     with:
-      ci-workflow: ci.yml
+      ci-workflow: check.yml
     permissions:
       contents: write
       pull-requests: write

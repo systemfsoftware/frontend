@@ -1,7 +1,7 @@
 ---
-"@systemfsoftware/effect-atom-react": patch
-"@systemfsoftware/effect-atom": patch
-"@systemfsoftware/storybook-gherkin": minor
+"@systemfsoftware/effect-atom-react": major
+"@systemfsoftware/effect-atom": major
+"@systemfsoftware/storybook-gherkin": major
 ---
 
 - `DuplicateCapture` carries its capture name in `capture` and `OutlineDuplicateRowName` carries its row name in `rowName`, where both carried it in `name`. A `name` payload field shadows the error's own `name`, so logs showed the field value instead of the error type. Read `capture` or `rowName`.

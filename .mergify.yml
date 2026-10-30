@@ -10,27 +10,9 @@ queue_rules:
       - -label = hold
       - "approved-reviews-by = kiro-systemf[bot]"
       - "#changes-requested-reviews-by = 0"
-      - check-success = check (format)
-      - check-success = check (lint)
-      - check-success = check (typecheck)
-      - check-success = check (test)
-      - check-success = check (dist)
-      - check-success = check (sfs-sources)
-      - check-success = journeys
-      - check-success = rules
-      - check-success = lint PR commits
-      - check-success = changeset · shared tooling
+      - check-success = check
     merge_conditions:
-      - check-success = check (format)
-      - check-success = check (lint)
-      - check-success = check (typecheck)
-      - check-success = check (test)
-      - check-success = check (dist)
-      - check-success = check (sfs-sources)
-      - check-success = journeys
-      - check-success = rules
-      - check-success = lint PR commits
-      - check-success = changeset · shared tooling
+      - check-success = check
 
 pull_request_rules:
   - name: queue when ready
