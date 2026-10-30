@@ -236,7 +236,8 @@
         "build",
         "generate",
         "//#lint:suppressions",
-        "//#format:check"
+        "//#format:check",
+        "lint:tsgo"
       ],
       "env": [
         "NODE_ENV",
