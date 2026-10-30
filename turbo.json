@@ -67,7 +67,8 @@
         "^build",
         "build",
         "generate",
-        "//#typecheck:node"
+        "//#typecheck:node",
+        "test:types"
       ],
       "cache": true
     },

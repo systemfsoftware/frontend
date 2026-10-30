@@ -139,6 +139,8 @@ A copy gets the template's files, not its repository settings, so nothing stops 
 gh api -X POST repos/{owner}/{repo}/rulesets --input .github/rulesets/gates.json
 ```
 
+When the checks a ruleset requires change, update the installed ruleset instead of creating a second one: PUT the file to the ruleset's id (`gh api repos/{owner}/{repo}/rulesets/<id> -X PUT --input .github/rulesets/gates.json`, id from `gh api repos/{owner}/{repo}/rulesets`), then run `pnpm check:branch-rules` to confirm the live ruleset and [`scripts/check-branch-rules.ts`](scripts/check-branch-rules.ts) agree. A pull request whose checks were renamed hangs on the old contexts until it is applied.
+
 Until it is installed, nothing stops a pull request with failing checks from merging. The ruleset requires the single `check` job.
 
 ### 6. Deploy
