@@ -3729,7 +3729,7 @@ packages:
       vitest: ^5.0.5
 
   '@systemfsoftware/xstate@file:.sfs-deps/xstate-6.0.0-alpha.64.tgz':
-    resolution: {integrity: sha512-NsN1kippHN4OJ5BR2wijgo3Qn04PTL1L5wwwoWUFgDGTmpZLoaq1RQuuXV4UjGTTDAJpTUew+6U+Lfq6YwUd4Q==, tarball: file:.sfs-deps/xstate-6.0.0-alpha.64.tgz}
+    resolution: {integrity: sha512-85n81zdEipPwrbKpSp/cHqidPsMWW4wHCWdqwT3H0P8e3ig4gmRdVwK2hmncIiFWF69ksft63ObuK/449d+a8g==, tarball: file:.sfs-deps/xstate-6.0.0-alpha.64.tgz}
     version: 6.0.0-alpha.64
 
   '@tanstack/history@1.162.4':
