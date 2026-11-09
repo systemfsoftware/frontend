@@ -10,6 +10,7 @@ export default defineConfig({
     projects: [
       {
         extends: true,
+        define: { 'process.platform': JSON.stringify('linux') },
         test: {
           name: 'browser',
           include: ['./tests/**/*.integration.test.ts', '!./tests/ssr.integration.test.ts'],

@@ -648,11 +648,11 @@
         "systemfsoftware-effect-cell-types-7": "systemfsoftware-effect-cell-types-7_2"
       },
       "locked": {
-        "lastModified": 1791513925,
-        "narHash": "sha256-Us5JhH7g3hHjTufGedIuM5rpnzr+HHjfEGM7vJTPkpQ=",
+        "lastModified": 1794162667,
+        "narHash": "sha256-SSlgYj++K6EfllVHBxQmOVC8W7HO35gbP0PDMQg5e+M=",
         "owner": "systemfsoftware",
         "repo": "xstate",
-        "rev": "84e602e77a562be7ac3c293f7b39eed23e503d69",
+        "rev": "372be24c758e7bd08116a63d5f40ab5f9f823adf",
         "type": "github"
       },
       "original": {

@@ -4,7 +4,7 @@
 "@systemfsoftware/storybook-gherkin": patch
 ---
 
-The Effect dependency now resolves to 4.0.5, and so does every `@effect/*` package installed with it.
+The Effect dependency resolved to 4.0.5, and so did every `@effect/*` package installed with it.
 
 - Effect 4.0.5 requires `effect@^4.0.5` as a peer, so a tree mixing 4.0.5 with an earlier 4.0.x fails at import, not at install. Install the versions your tree's `@effect/*` packages name.
 - `FileSystem.File.Info` reports `dev`, `ino`, `rdev`, `nlink` and `blocks` as `bigint` where it reported `number`. Convert at your own boundary with `BigInt` or `Number`.

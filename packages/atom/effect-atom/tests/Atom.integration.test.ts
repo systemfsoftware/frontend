@@ -1647,6 +1647,7 @@ Feature('Deriving values from other values on a page')
                   }),
                 clear: Effect.sync(() => storage.clear()),
                 size: Effect.sync(() => storage.size),
+                keys: Effect.sync(() => Array.from(storage.keys())),
               }),
             )
             const kvsRuntime = Atom.context()(DelayedKVS)
@@ -1689,7 +1690,7 @@ Feature('Deriving values from other values on a page')
               KeyValueStore.makeStringOnly({
                 get: (key) =>
                   Effect.sync(() => storage.get(key)).pipe(
-                    Effect.flatMap((stale) => Deferred.await(gate).pipe(Effect.as(stale))),
+                    Effect.tap(() => Deferred.await(gate)),
                   ),
                 set: (key, value) =>
                   Effect.sync(() => {
@@ -1701,6 +1702,7 @@ Feature('Deriving values from other values on a page')
                   }),
                 clear: Effect.sync(() => storage.clear()),
                 size: Effect.sync(() => storage.size),
+                keys: Effect.sync(() => Array.from(storage.keys())),
               }),
             )
             const kvsRuntime = Atom.context()(DelayedKVS)
@@ -1746,6 +1748,7 @@ Feature('Deriving values from other values on a page')
                     }),
                   clear: Effect.sync(() => storage.clear()),
                   size: Effect.sync(() => storage.size),
+                  keys: Effect.sync(() => Array.from(storage.keys())),
                 }),
               )
               const kvsRuntime = Atom.context()(DelayedKVS)
