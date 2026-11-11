@@ -1,265 +1,145 @@
-# starter
+# frontend
 
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache_2.0-blue.svg)](LICENSE)
-[![Effect: 4.0](https://img.shields.io/badge/Effect-4.0-purple.svg)](https://effect.website)
-[![CI](https://github.com/systemfsoftware/starter/actions/workflows/check.yml/badge.svg)](https://github.com/systemfsoftware/starter/actions/workflows/check.yml)
+[![CI](https://github.com/systemfsoftware/frontend/actions/workflows/check.yml/badge.svg)](https://github.com/systemfsoftware/frontend/actions/workflows/check.yml)
 
-> 🏛️ **starter** is an opinionated monorepo template for serious TypeScript with Effect and AI coding agents.
-> 🔒 One architecture, zero knobs, and mechanical gates that reject the slop agents produce when left unconstrained.
-> 🚀 Built for engineers accountable for codebases where AI writes the commits.
+The frontend stack for Effect applications: reactive atoms over Effect, their React bindings, Gherkin feature specs as Storybook stories, and an oxlint preset that enforces the UI rules. Four packages, one reference app that deploys to Cloudflare.
 
----
+React code written on this stack holds server data in atoms over Effect services, performs no I/O in components and runs no React effects. The rules are written down as [compound packs](compound-packs) and the lint preset turns the mechanical ones into errors, so a component that breaks them fails the build.
 
-## 💡 Why
+## Packages
 
-AI coding agents produce TypeScript that compiles cleanly and passes shallow unit tests while quietly violating foundational architecture: ambient side effects inside decision logic, unchecked type assertions (`as Type`), and mock-heavy test suites that mask runtime breakage.
+| Package                                                                                     | Version | What it is                                                                                                                        |
+| ------------------------------------------------------------------------------------------- | ------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| [`@systemfsoftware/effect-atom`](packages/atom/effect-atom)                                 | 6.0.0   | Reactive toolkit for Effect, forked from [tim-smart/effect-atom](https://github.com/tim-smart/effect-atom). One entry, `Atom`.    |
+| [`@systemfsoftware/effect-atom-react`](packages/atom/effect-atom-react)                     | 2.0.0   | React bindings for it: `RegistryProvider`, `useAtomValue` and the registry's scheduler. One entry, `AtomReact`.                   |
+| [`@systemfsoftware/storybook-gherkin`](packages/gherkin/storybook-gherkin)                  | 5.0.0   | Gherkin Given/When/Then embedded in Storybook CSF, with typed captures and scenario outlines, run as browser-mode play functions. |
+| [`@systemfsoftware/oxlint-config-frontend`](packages/oxlint-presets/oxlint-config-frontend) | 0.1.0   | The `@systemfsoftware/oxlint-config-recommended` preset plus the React rules and the ui-state and storybook-testing bans.         |
 
-`starter` establishes an uncompromising substrate. Invariants are not aspirational guidelines or doc comments; they are enforced mechanically by linter rules, complexity ceilings, mutation test floors, and continuous integration gates.
+Each is Apache-2.0 and has `effect` 4 as a peer. `effect-atom-react` also needs `react` and `react-dom`, and `storybook-gherkin` needs `storybook` 10 or later and `vitest`.
 
-| Concern               | The Naive AI-Assisted Default                                | The Endgame Architecture (`starter`)                                 |
-| --------------------- | ------------------------------------------------------------ | -------------------------------------------------------------------- |
-| **Domain Logic**      | ❌ Interleaved I/O, clocks, random generators, and mutations | ✅ Pure functions returning tagged `Decision` or `Refusal` unions    |
-| **Branching**         | ❌ Sprawling nested `if`/`else` and procedural loops         | ✅ Cyclomatic complexity 1 via exhaustive pattern matching (`Match`) |
-| **Boundary Data**     | ❌ Unchecked casts (`as unknown as Type`, `@ts-ignore`)      | ✅ Strict `Schema.decode` transforming raw bytes into branded types  |
-| **Test Verification** | ❌ Mock-heavy tests pinning internal implementation          | ✅ 100% mutation kill floor (`Stryker`) and property-based tests     |
-| **Configuration**     | ❌ Dozens of toggles that let agents bypass strictness       | ✅ Zero knobs — one proven opinionated toolchain end to end          |
-| **Package Entries**   | ❌ Star exports (`export *`) hiding dependency graphs        | ✅ Explicit named re-exports enumerated one line per symbol          |
-| **Refactoring**       | ❌ Patching around rotten legacy modules                     | ✅ Delete-first rebuild with published observable pinning            |
+## Install
 
----
+These packages are not on npm. This repository ships them as flake outputs, and each push to `main` pushes their tarballs to [nix.systemfsoftware.com](https://nix.systemfsoftware.com). A consumer takes the flake as an input and the tarballs through the route in [pnpm-release-management](https://github.com/systemfsoftware/pnpm-release-management#distribution-through-nix); Nix fetches a tarball that has been pushed and builds the rest from source.
 
-## 📐 Architecture
+### Add the flake as an input
 
-Every external interaction in a `starter` project follows the **I/O Sandwich**:
-
-```
-read (impure) ──► decode (pure) ──► decide (pure) ──► shape (pure) ──► write (impure)
-```
-
-1. 📥 **`read`** — Gathers raw input from ports and external systems.
-2. 🔍 **`decode`** — Validates unvalidated input into branded domain types using Schema.
-3. 🧠 **`decide`** — Executes domain logic with cyclomatic complexity 1 (zero I/O, zero ambient state).
-4. 📦 **`shape`** — Builds pure output documents and domain events from the decision.
-5. 📤 **`write`** — Persists changes, emits domain events, or returns responses.
-
----
-
-## 🧰 Toolchain
-
-`starter` wires a modern, fast, and type-safe toolchain across the workspace:
-
-| Tool                      | Role & Configuration                                                                   |
-| ------------------------- | -------------------------------------------------------------------------------------- |
-| ⚡ **pnpm Workspaces**    | Strict workspace dependency management with catalog versioning (`pnpm-workspace.yaml`) |
-| 🏎️ **Turbo**               | High-performance task pipeline with cached builds, tests, and lint runs                |
-| 🛡️ **Effect 4**            | The standard functional effect system                                                  |
-| 🔍 **oxlint**             | Rust-based linter enforcing strict TypeScript rules and the house presets              |
-| 🎨 **dprint**             | Fast, deterministic code and markdown formatting (`dprint.json`)                       |
-| 🧪 **Vitest**             | Fast unit and integration test runner with TypeScript support                          |
-| 🔬 **Stryker**            | Mutation testing ensuring tests fail when bugs are introduced                          |
-| 📝 **Changesets**         | Automated versioning and changelogs, released as git tags via shared tooling           |
-| 🪝 **Husky & Commitlint** | Git hooks enforcing conventional commit standards                                      |
-| 🌳 **Worktrunk Scripts**  | Deno-powered git worktree lifecycle hooks for isolated agent work                      |
-
----
-
-## 📁 Workspaces
-
-The repository is structured into two workspace roots defined in `pnpm-workspace.yaml`:
-
-```text
-.
-├── packages/           # Reusable libraries, engines, and domain cores
-├── apps/               # The Worker and its end-to-end journeys
-├── repos/              # Vendored subtrees (constitution, worktrunk-scripts)
-└── docs/               # Solutions, tooling decisions, and plans
+```nix
+{
+  nixConfig = {
+    extra-substituters = "https://nix.systemfsoftware.com";
+    extra-trusted-public-keys = "nix-cache-1:wXA8I4DayNW9q6enUyQA/P/nT38pGSTLt374t3gsn7M=";
+    fallback = true;
+  };
+  inputs = {
+    nixpkgs.follows = "producer/nixpkgs";
+    producer.url = "github:systemfsoftware/frontend/<rev>";
+    pnpm-release-management.url = "github:systemfsoftware/pnpm-release-management";
+  };
+}
 ```
 
-- [`apps/site`](apps/site) — The one Cloudflare Worker: a TanStack Start site that calls its Worker through effect/rpc (one RpcGroup served at `/api/rpc`, a typed RpcClient in the page) over one D1 database, defined and deployed with Alchemy. `pnpm dev` emulates the database locally; the `health` procedure probes the database and answers `ok` only when the pure decision `check-health.workflow.ts` finds the probe answered, refusing with `DatabaseUnreachable` otherwise.
-- [`apps/site-e2e`](apps/site-e2e) — The end-to-end journeys that run against `pnpm dev` (`pnpm journeys`).
+### Build the tarballs and the pnpm store
 
----
-
-## 🚀 Getting Started
-
-### 1. Create a Repository from Template
-
-Click the **Use this template** button on GitHub, or create a repository via the GitHub CLI:
-
-```bash
-gh repo create my-effect-project --template systemfsoftware/starter --public
-cd my-effect-project
+```nix
+packages = forEachSystem (pkgs: rec {
+  producer-tarballs = pnpm-release-management.lib.mkProducerTarballs {
+    inherit pkgs;
+    producers = { inherit producer; };
+  };
+  pnpm-store = pnpm-release-management.lib.mkPnpmConsumerStore {
+    inherit pkgs;
+    src = self;
+    files.".deps" = producer-tarballs;
+  };
+});
 ```
 
-### 2. Enter the Dev Shell and Install
+The flake exposes `effect-atom`, `effect-atom-react`, `storybook-gherkin` and `oxlint-config-frontend`, and `workspace-tarballs` with all four. The peers install from npm as usual.
 
-[nix.systemfsoftware.com](https://nix.systemfsoftware.com) is the package registry for `@systemfsoftware` packages: the dev shell takes them from it through the producers' flake inputs, and nothing is published to npm.
+## Atoms in React
 
-Installs, builds, tests and git hooks run their dependency code inside a deny-by-default sandbox, never directly on your machine. The [Nix](https://nixos.org/download/) dev shell pins the toolchain and carries the sandbox ([prerequisites](CONTRIBUTING.md#prerequisites)):
+An atom holds a value, a registry holds the atoms, and a component reads one through `useAtomValue`. The code that mounts the app owns the registry: it creates it before the first render and disposes it at teardown.
 
-```bash
-nix develop # or: direnv allow
-pnpm bootstrap
+```ts
+import { Atom } from '@systemfsoftware/effect-atom'
+import { AtomReact } from '@systemfsoftware/effect-atom-react'
+
+const count = Atom.make(0)
+const registry = Atom.Registry.make({ scheduleTask: AtomReact.scheduleTask })
+
+// inside a component under <AtomReact.RegistryProvider registry={registry}>
+const value = AtomReact.useAtomValue(count)
 ```
 
-### 3. Build and Verify
+Saved state, islands and the rest of the registry's lifecycle are in the [`effect-atom-react` README](packages/atom/effect-atom-react#readme).
 
-```bash
-pnpm build
-pnpm check:ci
+## Feature specs as stories
+
+`storybook-gherkin` writes a story as a scenario. Steps carry typed captures, and a scenario outline expands one set of steps over a table of examples.
+
+```ts
+import { capture, feature, Given, Then, When } from '@systemfsoftware/storybook-gherkin'
+import { expect } from 'storybook/test'
+
+const f = feature({}, {})
+
+export default { ...f, title: 'StorybookGherkin/Greeting', render: () => null }
+
+export const AliceReceivesAGreeting = f.scenario(
+  'Alice receives a greeting that names her',
+  { with: { user: 'alice', greeting: 'Hello, alice' } },
+  Given`the user ${capture('user')} has an account`(() => {}),
+  When`the system greets ${capture('user')}`(() => {}),
+  Then`the greeting mentions ${capture('user')} and reads "${capture('greeting')}"`(
+    (_ctx, caps) => {
+      void expect(caps.greeting).toContain(caps.user)
+    },
+  ),
+)
 ```
 
-### 4. Run It Locally
+The story suite in [`test/browser/spec.stories.ts`](packages/gherkin/storybook-gherkin/test/browser/spec.stories.ts) is the package's own browser test and includes this scenario.
 
-```bash
-pnpm dev       # the whole app at http://localhost:1337, Alchemy's local emulation, no cloud
-pnpm journeys  # the end-to-end journeys in a real browser against pnpm dev
+## Lint rules for UI code
+
+`oxlint-config-frontend` extends the recommended preset with the oxlint React plugin (every `correctness` rule at error, the React Compiler checks included, and the Rules of Hooks) and the UI bans:
+
+| Rule                                                      | What it refuses                                                                                                      |
+| --------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `ui-state/server-data-lives-in-atoms`                     | Imports of React server-state libraries (`@tanstack/react-query`, `swr`, `urql`, `@apollo/client/react` and others). |
+| `ui-state/components-perform-no-io`                       | `fetch`, including `globalThis.fetch`, `window.fetch` and `self.fetch`, in a `.tsx` module.                          |
+| `ui-state/react-runs-no-effect`                           | `useEffect`, `useLayoutEffect`, `useInsertionEffect` and `useEffectEvent` imported from `react`.                     |
+| `storybook-testing/visual-evidence-comes-from-the-runner` | `page.screenshot` in a story file.                                                                                   |
+
+### Use the preset
+
+Extend it from an `oxlint.config.ts`:
+
+```ts
+import recommended from '@systemfsoftware/oxlint-config-frontend'
+import { defineConfig } from 'oxlint'
+
+export default defineConfig({ extends: [recommended] })
 ```
 
-The site ships one example feature, a guestbook at `/guestbook`: a pure decision (`sign-guestbook.workflow.ts`, built with `Workflow.make`) trims a name and a message and refuses them with typed errors; the RPC procedures `sign` and `list` write and read entries in D1, with the decision's tagged refusals as `sign`'s error schema; and the page shows the entries or the refusal. Any visitor can flag or vouch for an entry: a second decision (`moderate-guestbook-entry.workflow.ts`) applies the event to the entry's stored state (`Visible`, `Flagged` or `Hidden`) with the pure `transition` of a machine from our XState fork, and refuses an event the state can't take. The `moderate` procedure writes the new state only if the row still holds the state it read, and `list` never returns a `Hidden` entry. Everything it owns lives in [`apps/site/src/features/guestbook`](apps/site/src/features/guestbook) and [`apps/site-e2e/tests/features/guestbook`](apps/site-e2e/tests/features/guestbook).
+The rules behind the bans, with the incidents that led to them, are in [`compound-packs/ui-state`](compound-packs/ui-state) and [`compound-packs/storybook-testing`](compound-packs/storybook-testing).
 
-To remove it:
+## The reference site
 
-1. Delete `apps/site/src/features/guestbook`.
-2. Delete `apps/site-e2e/tests/features/guestbook`.
-3. Delete the route file `apps/site/src/routes/guestbook.tsx`.
-4. `apps/site/src/api/site-rpcs.ts`: drop the `GuestbookRpcs` import and make `SiteRpcs` just `HealthRpcs`.
-5. `apps/site/src/api/site-rpc-server.ts`: drop the `GuestbookHandlers` import and its `Layer.provide(GuestbookHandlers)` line.
-6. `apps/site/alchemy.run.ts`: drop the `migrations` option from `Cloudflare.D1.Database('Database', …)`.
-7. `pnpm-workspace.yaml`: drop the `@systemfsoftware/xstate` line under `catalog:`; `apps/site/package.json`: drop the `@systemfsoftware/xstate` dependency.
-8. Run `pnpm install --no-frozen-lockfile` from the shell you already have open. It rewrites `pnpm-lock.yaml` without its xstate entries; `--frozen-lockfile` (pnpm's default when `CI` is set) refuses that rewrite. The devshell builds its pnpm store from `pnpm-lock.yaml`, so it can't start again until the lockfile drops xstate.
-9. `flake.nix`: drop the `systemfsoftware-xstate` input, its name in the `outputs` arguments and in `producers`; then run `nix flake lock` and copy the `overrides:` block from `nix eval --raw .#producer-tarballs.overrides` into `pnpm-workspace.yaml`.
-10. Delete this README's guestbook text, from "The site ships one example feature" through the D1 note below.
+[`apps/site`](apps/site) is one Cloudflare Worker serving a TanStack Start site. It calls its Worker through `effect/rpc` over one D1 database, and Alchemy defines and deploys it. The home page shows the Worker's health, `/guestbook` is a guestbook with moderation, and every page response carries a Content Security Policy with a per-request nonce, which [`apps/site-e2e`](apps/site-e2e) checks in a real Chromium. The site does not import the packages above. Running it, the guestbook and deploys are in [docs/site.md](docs/site.md).
 
-Removal leaves a deployed D1 as it is: the `guestbook_entries` table and its `0001_create_guestbook_entries.sql` and `0002_add_guestbook_entry_state.sql` rows in `__alchemy_migrations` stay; drop them from the D1 console in the Cloudflare dashboard with `DROP TABLE guestbook_entries; DELETE FROM __alchemy_migrations WHERE name IN ('0001_create_guestbook_entries.sql', '0002_add_guestbook_entry_state.sql');`.
+## Documentation
 
-### 5. Make the Gates Block Merges
+- [docs/site.md](docs/site.md): running and deploying the reference site, and its CI credentials
+- [compound-packs/ui-state](compound-packs/ui-state): how a React application holds state
+- [compound-packs/storybook-testing](compound-packs/storybook-testing): how stories test the UI
+- [CONTRIBUTING.md](CONTRIBUTING.md): development setup, checks and pull requests
 
-A copy gets the template's files, not its repository settings, so nothing stops a pull request with failing checks from merging until `main` has a ruleset that requires them. Install the "gates" ruleset from [`.github/rulesets/gates.json`](.github/rulesets/gates.json) once, with your own GitHub credentials:
+## Contributing
 
-```bash
-gh api -X POST repos/{owner}/{repo}/rulesets --input .github/rulesets/gates.json
-```
+Development setup and workflow: [CONTRIBUTING.md](CONTRIBUTING.md).
 
-When the checks a ruleset requires change, update the installed ruleset instead of creating a second one: PUT the file to the ruleset's id (`gh api repos/{owner}/{repo}/rulesets/<id> -X PUT --input .github/rulesets/gates.json`, id from `gh api repos/{owner}/{repo}/rulesets`), then run `pnpm check:branch-rules` to confirm the live ruleset and [`scripts/check-branch-rules.ts`](scripts/check-branch-rules.ts) agree. A pull request whose checks were renamed hangs on the old contexts until it is applied.
+## License
 
-Until it is installed, nothing stops a pull request with failing checks from merging. The ruleset requires the single `check` job.
-
-### 6. Deploy
-
-Your copy deploys to your own Cloudflare account; the template holds no credentials. Set `CLOUDFLARE_API_TOKEN` (a token that can edit Workers and D1) and `CLOUDFLARE_ACCOUNT_ID`, and optionally `SITE_DOMAIN` (a hostname in a zone on that account) to serve production there instead of on `workers.dev`:
-
-```bash
-pnpm run deploy                         # stage prod
-ALCHEMY_STAGE=pr-12 pnpm run deploy     # a preview stage
-ALCHEMY_STAGE=pr-12 pnpm run destroy
-```
-
-`pnpm run deploy`, not `pnpm deploy`: the bare form is pnpm's own built-in command.
-
-In a copy that has run the [section 7](#7-credentials-for-ci) bootstrap and set the repository variable `ALCHEMY_DEPLOY` to `true` (plus `SITE_DOMAIN` as a repository variable to serve production on a domain), every same-repo pull request gets a preview deploy with its URL in a comment and its stage destroyed on close, and `main` deploys production in one job with no gate in front of it. The template itself never deploys.
-
-### 7. Credentials for CI
-
-The operator runs this once per repository that opts in to deploys. It runs on the host, outside every sandbox (not through `bin/cloud` or `sandbox --`), and never on the template. It mints a scoped Cloudflare token and writes it to the repository as secrets, so no one hand-copies a token into repository settings.
-
-The bootstrap requires `SITE_DOMAIN`: a hostname in a zone on the account, because the CI token's zone grants are scoped to that zone. A copy that serves only on `workers.dev` skips the bootstrap and creates the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` repository secrets by hand instead.
-
-From `apps/site` in the dev shell, with the operator's own secrets (supplied from Doppler, key named by the operator; never print them):
-
-```bash
-cd apps/site
-CLOUDFLARE_API_TOKEN=… CLOUDFLARE_ACCOUNT_ID=… GITHUB_ACCESS_TOKEN=… \
-  GITHUB_REPOSITORY=<owner>/<repo> SITE_DOMAIN=<hostname> \
-  pnpm exec alchemy deploy --config stacks/github.ts --stage ci-credentials
-```
-
-- `CLOUDFLARE_API_TOKEN`: an admin-scoped Cloudflare token that can create API tokens. A standard Edit Workers token is not enough; use an account API token with `Account > API Tokens > Write`, or the Global API Key.
-- `CLOUDFLARE_ACCOUNT_ID`: the target account.
-- `GITHUB_ACCESS_TOKEN`: a fine-grained personal access token on that one repository with only Secrets: write, and a short expiry.
-- `GITHUB_REPOSITORY`: `<owner>/<repo>` of the repository that receives the secrets.
-- `SITE_DOMAIN`: a hostname in a zone on the account. The CI token's zone grants are limited to that zone.
-
-These environment credentials win over any alchemy profile, so no `--profile` flag is needed. The fixed `ci-credentials` stage means a rerun updates the same token and secrets instead of minting new ones. A rerun changes the token's grants in place and keeps its value.
-
-The stack is named `github-<owner>-<repo>` from `GITHUB_REPOSITORY`, so every repository's bootstrap carries its own state: alchemy's state store keys each resource by stack, stage, and resource name (`@alchemy.run/cloudflare` `src/StateStore/Api.ts:75-79`, `:121-135`; the stack name flows from `Alchemy.Stack` into that key, `alchemy/src/Stack.ts:155-157`, `:216`). Two repositories therefore never share a state key, and one repository's `destroy` cannot delete another's token or secrets.
-
-The stack creates a Cloudflare account API token and two repository secrets, `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`. The token holds:
-
-- Account: Workers Scripts Write, D1 Write, Workers Tail Read, and Secrets Store Write. Secrets Store Write is needed because every cloud stage keeps its state in a worker that is bound to the account's Secrets Store.
-- The `SITE_DOMAIN` zone only: Workers Routes Write, DNS Write, and Zone Read. Zone Read is needed because the custom-domain path looks the zone up by name.
-
-After it runs:
-
-1. Confirm the secrets exist with `gh secret list` (names only).
-2. Revoke the previous hand-made Cloudflare token by name in the Cloudflare dashboard.
-3. Set the repository variable `ALCHEMY_DEPLOY` to `true`, and `SITE_DOMAIN` to the same hostname so production serves on it. Nothing deploys until `ALCHEMY_DEPLOY` is set.
-4. To rotate the token's value, at least every 90 days, run `pnpm exec alchemy destroy --config stacks/github.ts --stage ci-credentials` with the same environment, then run the deploy command again. The destroy deletes the token, the deploy mints a new one and rewrites both secrets, and deploys fail in between.
-
-A new resource type needs its permission group added to `apps/site/stacks/github.ts`.
-
----
-
-## 🚦 Verification Gates
-
-All changes must satisfy local and continuous integration verification gates:
-
-```bash
-# Format code and markdown
-pnpm format:check
-
-# Typecheck workspace packages
-pnpm typecheck
-
-# Run linter across packages
-pnpm lint
-
-# Run unit and integration tests
-pnpm test
-# Run every local gate (a superset of what CI runs)
-pnpm check:ci
-```
-
----
-
-## ❓ Frequently Asked Questions
-
-<details>
-<summary><strong>Why does starter require Effect 4 instead of Effect 3?</strong></summary>
-
-Effect 4 brings the schema transformations and typed services the template's decisions and boundaries are written with. `starter` targets the future of Effect rather than supporting legacy patterns.
-
-</details>
-
-<details>
-<summary><strong>Why are there no configuration options or preset levels?</strong></summary>
-
-Every configuration toggle provides a route for AI agents to downgrade verification standards and reintroduce slop. Zero knobs guarantees that all packages created from this template adhere to identical architectural standards.
-
-</details>
-
-<details>
-<summary><strong>How does mutation testing work in this template?</strong></summary>
-
-Stryker introduces deliberate syntax and logic mutations into your code and runs your test suite against each mutant. If your tests still pass when code behavior changes, the mutant survives. Mutation is an on-demand script, `pnpm --filter @endgame/site mutation` (`stryker run`), never a CI job and never a gate in front of a deploy. The shared config (`stryker.shared.ts`) mutates only `**/*.workflow.ts` files in the package, runs the Vitest tests related to each mutant, and breaks the run below a 100% kill score.
-
-</details>
-
-<details>
-<summary><strong>How do I migrate an existing codebase to this architecture?</strong></summary>
-
-Follow the strangler pattern: pin the published observable behavior of a module, delete the legacy file completely, and rebuild it from a blank page using pure I/O sandwiches. Never patch around a flawed core.
-
-</details>
-
----
-
-## 🤝 Contributing
-
-Development setup, workflows, and PR guidelines are documented in [CONTRIBUTING.md](CONTRIBUTING.md).
-
----
-
-## 📄 License
-
-Licensed under the [Apache-2.0 License](LICENSE).
+Apache-2.0. See [LICENSE](LICENSE).

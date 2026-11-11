@@ -13,8 +13,8 @@ Contributions are welcome. Follow these instructions to set up the development e
 Clone the repository, enter the dev shell and install:
 
 ```bash
-git clone <your-repo-url>
-cd <your-repo>
+git clone https://github.com/systemfsoftware/frontend.git
+cd frontend
 nix develop # or: direnv allow
 pnpm bootstrap
 ```
