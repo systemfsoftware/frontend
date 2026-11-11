@@ -62,7 +62,7 @@ The starter's strategy rests on one claim: an invariant is either carried by a g
 **A. The moderation lifecycle (answer to question A: yes, and it extends the guestbook)**
 
 - R1. The guestbook entry gets a lifecycle with three states (`Visible`, `Flagged`, `Hidden`) and two events (`Flag`, `Vouch`). A signed entry starts in `Visible`. Legal moves: `Visible` → `Flagged` on Flag; `Flagged` → `Visible` on Vouch; `Flagged` → `Hidden` on Flag. Every other (state, event) pair is illegal. That makes 3 legal pairs and 3 illegal ones, and `Hidden` is final.
-- R2. The lifecycle is a machine built with `@systemfsoftware/xstate` (core only). The package comes from the `systemfsoftware/xstate` flake as a `file:.sfs-deps` tarball, and `pnpm check:sfs-sources` covers it, so it never resolves from npm.
+- R2. The lifecycle is a machine built with `@systemfsoftware/xstate` (core only). The package comes from the `systemfsoftware/xstate` flake as a `file:.deps` tarball, and `pnpm check:sfs-sources` covers it, so it never resolves from npm.
 - R3. Every transition request is one sandwich. Read the entry's stored state name from D1. Decode it into the three-state type (R6). Inside the entry's decision, resolve that state on the machine and apply the fork's pure `transition`; an unhandled event is a refusal (R4). Write the new state only if the row still holds the state that was read (R5). No snapshot is persisted or restored, and no actor or interpreter runs in the Worker. The machine declares no context, actions, delayed transitions or child actors.
 - R4. An illegal event is refused over effect/rpc with a typed error that names the entry's current state and the event. The stored row stays byte-identical.
 - R5. When two transition requests read the same entry in the same state, exactly one is applied. The other gets a typed conflict refusal, so no update is lost and no illegal transition is persisted by a race.
@@ -72,7 +72,7 @@ The starter's strategy rests on one claim: an invariant is either carried by a g
 - R9. The release gate's mutated set includes the moderation decision file, machine and guards included, and it scores 100 with no change to `stryker.mutate`. The file passes complexity-1 and the house lint with no disable, ignore or suppression directive.
 - R10. A journey against `pnpm dev` signs an entry, flags it, vouches for it, flags it twice, and sees it gone after a fresh page load. Each step is a separate request.
 - R11. `Flag` and `Vouch` are both open to any visitor. No lifecycle event needs a privileged actor, a login or any other authorization (Q2).
-- R12. The README's removal steps are still one procedure. They also remove the moderation migration, both `@systemfsoftware/xstate` lines in `pnpm-workspace.yaml` (the `catalog:` entry and its mirror under `overrides:`), and the flake input along with its place in the `sfs-deps` derivation. After removal, `git grep -nI xstate -- . ':!*.lock'` exits 1 and `pnpm install` succeeds.
+- R12. The README's removal steps are still one procedure. They also remove the moderation migration, both `@systemfsoftware/xstate` lines in `pnpm-workspace.yaml` (the `catalog:` entry and its mirror under `overrides:`), and the flake input along with its place in the `deps` derivation. After removal, `git grep -nI xstate -- . ':!*.lock'` exits 1 and `pnpm install` succeeds.
 
 **C. Gaps, ranked by impact on adopters (answer to question C)**
 
