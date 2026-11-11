@@ -7,7 +7,9 @@ queue_rules:
       - check-success = check
       - or:
           - check-success = commitlint / lint PR commits
-          - check-skipped = commitlint / lint PR commits
+          - and:
+              - author = dependabot[bot]
+              - check-skipped = commitlint / lint PR commits
     # Checked on Mergify's queue draft PR (mergify/merge-queue/*), i.e. CI on the PR rebased with main and any batch.
     merge_conditions:
       - check-success = check
