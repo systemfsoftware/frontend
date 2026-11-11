@@ -1,22 +1,15 @@
-# Mergify merges every PR into main. A PR that meets queue_conditions is queued automatically; nobody comments.
-# The first PR in this repository (SYS-440) is a bootstrap merge: kiro-systemf merges it once with
-# --match-head-commit. From the next PR the queue takes over.
+# Mergify: policy lives in systemfsoftware/.github (.mergify.yml). This file only names this repo's CI checks.
+extends: .github
 queue_rules:
   - name: default
-    merge_method: squash
+    # Checked on the PR itself before it enters the queue.
     queue_conditions:
-      - base = main
-      - -draft
-      - -label = hold
-      - "approved-reviews-by = kiro-systemf[bot]"
-      - "#changes-requested-reviews-by = 0"
       - check-success = check
+      - or:
+          - check-success = commitlint / lint PR commits
+          - and:
+              - author = dependabot[bot]
+              - check-skipped = commitlint / lint PR commits
+    # Checked on Mergify's queue draft PR (mergify/merge-queue/*), i.e. CI on the PR rebased with main and any batch.
     merge_conditions:
       - check-success = check
-
-pull_request_rules:
-  - name: queue when ready
-    conditions:
-      - base = main
-    actions:
-      queue:
