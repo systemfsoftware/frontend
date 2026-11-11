@@ -23,7 +23,7 @@
     };
     # mkProducerTarballs and mkPnpmConsumerStore: the consumer route.
     pnpm-release-management = {
-      url = "github:systemfsoftware/pnpm-release-management/741c8c4334c261058dd4a3b2976c9f2e3796d523";
+      url = "github:systemfsoftware/pnpm-release-management/ebebdfebf30205b508840ea55801d55283af7648";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.comment-checker.follows = "comment-checker";
       inputs.importPnpmLock.follows = "importPnpmLock";
