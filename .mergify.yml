@@ -5,6 +5,9 @@ queue_rules:
     # Checked on the PR itself before it enters the queue.
     queue_conditions:
       - check-success = check
+      - or:
+          - check-success = commitlint / lint PR commits
+          - check-skipped = commitlint / lint PR commits
     # Checked on Mergify's queue draft PR (mergify/merge-queue/*), i.e. CI on the PR rebased with main and any batch.
     merge_conditions:
       - check-success = check
