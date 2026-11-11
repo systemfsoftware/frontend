@@ -93,6 +93,8 @@ cd my-effect-project
 
 ### 2. Enter the Dev Shell and Install
 
+[nix.systemfsoftware.com](https://nix.systemfsoftware.com) is the package registry for `@systemfsoftware` packages: the dev shell takes them from it through the producers' flake inputs, and nothing is published to npm.
+
 Installs, builds, tests and git hooks run their dependency code inside a deny-by-default sandbox, never directly on your machine. The [Nix](https://nixos.org/download/) dev shell pins the toolchain and carries the sandbox ([prerequisites](CONTRIBUTING.md#prerequisites)):
 
 ```bash
@@ -124,9 +126,9 @@ To remove it:
 4. `apps/site/src/api/site-rpcs.ts`: drop the `GuestbookRpcs` import and make `SiteRpcs` just `HealthRpcs`.
 5. `apps/site/src/api/site-rpc-server.ts`: drop the `GuestbookHandlers` import and its `Layer.provide(GuestbookHandlers)` line.
 6. `apps/site/alchemy.run.ts`: drop the `migrations` option from `Cloudflare.D1.Database('Database', …)`.
-7. `pnpm-workspace.yaml`: drop the `@systemfsoftware/xstate` line under `catalog:` and its mirror under `overrides:`; `apps/site/package.json`: drop the `@systemfsoftware/xstate` dependency.
+7. `pnpm-workspace.yaml`: drop the `@systemfsoftware/xstate` line under `catalog:`; `apps/site/package.json`: drop the `@systemfsoftware/xstate` dependency.
 8. Run `pnpm install --no-frozen-lockfile` from the shell you already have open. It rewrites `pnpm-lock.yaml` without its xstate entries; `--frozen-lockfile` (pnpm's default when `CI` is set) refuses that rewrite. The devshell builds its pnpm store from `pnpm-lock.yaml`, so it can't start again until the lockfile drops xstate.
-9. `flake.nix`: drop the `systemfsoftware-xstate` input, its name in the `outputs` arguments, and its place in the `extraDepsOf` copy loop; then run `nix flake lock`.
+9. `flake.nix`: drop the `systemfsoftware-xstate` input, its name in the `outputs` arguments and in `producers`; then run `nix flake lock` and copy the `overrides:` block from `nix eval --raw .#producer-tarballs.overrides` into `pnpm-workspace.yaml`.
 10. Delete this README's guestbook text, from "The site ships one example feature" through the D1 note below.
 
 Removal leaves a deployed D1 as it is: the `guestbook_entries` table and its `0001_create_guestbook_entries.sql` and `0002_add_guestbook_entry_state.sql` rows in `__alchemy_migrations` stay; drop them from the D1 console in the Cloudflare dashboard with `DROP TABLE guestbook_entries; DELETE FROM __alchemy_migrations WHERE name IN ('0001_create_guestbook_entries.sql', '0002_add_guestbook_entry_state.sql');`.
