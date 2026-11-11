@@ -10,6 +10,8 @@ import type { UserConfig } from '@commitlint/types'
  * AI-coauthor ban.
  */
 
+const isMergifyQueueMergeCommit = (commit: string): boolean => /^Merge of #\d+\s*$/.test(commit)
+
 const configuration: UserConfig = {
   extends: ['@commitlint/config-conventional'],
 
@@ -112,7 +114,10 @@ const configuration: UserConfig = {
   },
 
   defaultIgnores: true,
-  ignores: [(commit) => commit.startsWith("Squashed '") || commit.includes('git-subtree-dir:')],
+  ignores: [
+    (commit) => commit.startsWith("Squashed '") || commit.includes('git-subtree-dir:'),
+    isMergifyQueueMergeCommit,
+  ],
   formatter: '@commitlint/format',
 }
 
