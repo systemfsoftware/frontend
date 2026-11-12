@@ -78,6 +78,7 @@
     "@systemfsoftware/vitest": "^4.0.2",
     "@systemfsoftware/vitest-config": "^0.1.2",
     "@types/node": "catalog:",
+    "@opentelemetry/api": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
     "@vitest/browser": "catalog:",

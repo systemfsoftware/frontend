@@ -53,6 +53,7 @@
   },
   "devDependencies": {
     "@microsoft/api-extractor": "catalog:",
+    "@opentelemetry/api": "catalog:",
     "@systemfsoftware/arethetypeswrong-cli": "^4.2.0",
     "@systemfsoftware/conformance-spec": "^1.1.2",
     "@systemfsoftware/differential-spec": "^1.1.2",
