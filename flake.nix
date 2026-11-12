@@ -30,7 +30,7 @@
     };
     # The producers, each pinned to its default branch's commit. Each one
     # gives packages.<system>.workspace-tarballs.
-    systemfsoftware.url = "github:systemfsoftware/systemfsoftware/e1c7a5f4655d1705de502ebe0de3c1fa87e35591";
+    systemfsoftware.url = "github:systemfsoftware/systemfsoftware/3ef6c21c36f19a539078b6817b495df3039cc163";
     stryker-js-effect.url = "github:systemfsoftware/stryker-js-effect/bc8680e836d3df9f80dc69770a9a91390447f8f1";
     systemfsoftware-xstate.url = "github:systemfsoftware/xstate/7d7ea103304f6aaa011b04335eec4724a6b8b967";
     are-the-types-wrong-effect.url = "github:systemfsoftware/are-the-types-wrong-effect/2650b6a0c6cd3b2abdb7f429a5a55dd5221588ca";
@@ -54,14 +54,12 @@
       # Every producer's tarball, under a name with no version, laid in `.deps`.
       producerTarballsOf = pkgs: pnpm-release-management.lib.mkProducerTarballs { inherit pkgs producers; };
 
-      # The lockfile, the workspace doc, every manifest and the patches
-      # patchedDependencies names: all the consumer store reads.
+      # The lockfile, the workspace doc and every manifest: all the consumer store reads.
       consumerSrc = lib.fileset.toSource {
         root = ./.;
         fileset = lib.fileset.unions [
           ./pnpm-lock.yaml
           ./pnpm-workspace.yaml
-          ./patches
           (lib.fileset.fileFilter (file: file.name == "package.json") ./.)
         ];
       };
