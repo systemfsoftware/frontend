@@ -68,7 +68,7 @@ catalogs:
     effect: ^4
 catalogMode: prefer
 ignoreScripts: true
-minimumReleaseAge: 1440
+minimumReleaseAge: 4320
 blockExoticSubdeps: false
 minimumReleaseAgeExclude:
   - alchemy
@@ -143,7 +143,6 @@ overrides:
   effect: "catalog:"
   esbuild: ^0.28.2
   rolldown: 1.2.13
-  rolldown-plugin-dts: 0.28.6
   workerd: 1.20261005.1
 packages:
   - apps/*
@@ -151,8 +150,6 @@ packages:
   - packages/atom/*
   - packages/gherkin/*
   - packages/oxlint-presets/*
-patchedDependencies:
-  rolldown-plugin-dts@0.28.6: patches/rolldown-plugin-dts@0.28.6.patch
 supportedArchitectures:
   os: [linux]
   cpu: [x64, arm64]
