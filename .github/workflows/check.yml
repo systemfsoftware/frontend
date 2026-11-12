@@ -47,7 +47,11 @@ jobs:
           restore-keys: |
             turbo-${{ runner.os }}-check-
             turbo-${{ runner.os }}-
+      - name: Check (merge-queue draft, full suite)
+        if: startsWith(github.head_ref, 'mergify/merge-queue/')
+        run: nix develop --command pnpm exec turbo run format:check lint typecheck test
       - name: Check
+        if: ${{ !startsWith(github.head_ref, 'mergify/merge-queue/') }}
         run: nix develop --command pnpm exec turbo run format:check lint typecheck test --affected
       - name: Require a change intent for every publishable-package change
         if: github.event_name == 'pull_request' && !(github.head_ref == 'changeset-release/main' && github.event.pull_request.head.repo.full_name == github.repository)
