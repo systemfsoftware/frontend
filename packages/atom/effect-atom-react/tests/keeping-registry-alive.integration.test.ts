@@ -48,7 +48,7 @@ Feature('Keeping a shared registry alive')
         When('the widget is shown')('shown', () => Effect.succeed(true)),
         Then('the value the provider starts with is on screen')((_s, expect) =>
           Effect.promise(() => screen.findByTestId('provided-rating')).pipe(
-            Effect.map((rating) => expect(rating).toHaveTextContent('0')),
+            Effect.map((rating) => expect(rating.textContent).toBe('0')),
           )
         ),
       ),

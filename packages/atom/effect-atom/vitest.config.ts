@@ -12,7 +12,9 @@ export default defineConfig({
       { extends: true, test: nodeTest },
       {
         extends: true,
-        define: { 'process.platform': JSON.stringify('linux') },
+        define: {
+          'process.platform': JSON.stringify('linux'),
+        },
         test: {
           name: 'browser',
           include: ['./tests/browser/**/*.test.ts'],

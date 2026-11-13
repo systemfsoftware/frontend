@@ -15,8 +15,6 @@
     # consumer follows systemfsoftware and every producer evaluates the same
     # nixpkgs its registry entry was pushed from.
     nixpkgs.follows = "systemfsoftware/nixpkgs";
-    # The release manifest (`nix/release-hashes.json`) rides in this input, so
-    # Dependabot's bump of it is also the version and digest bump.
     comment-checker = {
       url = "github:systemfsoftware/comment-checker";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -30,7 +28,7 @@
     };
     # The producers, each pinned to its default branch's commit. Each one
     # gives packages.<system>.workspace-tarballs.
-    systemfsoftware.url = "github:systemfsoftware/systemfsoftware/e1c7a5f4655d1705de502ebe0de3c1fa87e35591";
+    systemfsoftware.url = "github:systemfsoftware/systemfsoftware/d4aca35674f015b33748891e6378b33a055d1234";
     stryker-js-effect.url = "github:systemfsoftware/stryker-js-effect/bc8680e836d3df9f80dc69770a9a91390447f8f1";
     systemfsoftware-xstate.url = "github:systemfsoftware/xstate/7d7ea103304f6aaa011b04335eec4724a6b8b967";
     are-the-types-wrong-effect.url = "github:systemfsoftware/are-the-types-wrong-effect/2650b6a0c6cd3b2abdb7f429a5a55dd5221588ca";
@@ -54,14 +52,12 @@
       # Every producer's tarball, under a name with no version, laid in `.deps`.
       producerTarballsOf = pkgs: pnpm-release-management.lib.mkProducerTarballs { inherit pkgs producers; };
 
-      # The lockfile, the workspace doc, every manifest and the patches
-      # patchedDependencies names: all the consumer store reads.
+      # The lockfile, the workspace doc and every manifest: all the consumer store reads.
       consumerSrc = lib.fileset.toSource {
         root = ./.;
         fileset = lib.fileset.unions [
           ./pnpm-lock.yaml
           ./pnpm-workspace.yaml
-          ./patches
           (lib.fileset.fileFilter (file: file.name == "package.json") ./.)
         ];
       };
@@ -80,9 +76,7 @@
         let
           system = pkgs.stdenv.hostPlatform.system;
           dprint = pkgs.callPackage ./nix/dprint.nix { dprintConfig = ./dprint.json; };
-          unwrapped = pkgs.callPackage ./nix/comment-checker.nix {
-            hashes = "${comment-checker}/nix/release-hashes.json";
-          };
+          unwrapped = comment-checker.packages.${system}.comment-checker;
           sandboxed = pkgs.callPackage ./nix/comment-checker-sandbox.nix {
             comment-checker = unwrapped;
           };

@@ -61,7 +61,7 @@ Feature('Waiting for asynchronous values')
         ),
         Then('the loaded value is on screen')((_s, expect) =>
           Effect.promise(() => findWidgetShowing({ testId: 'loaded-value', text: '5' })).pipe(
-            Effect.map((widget) => expect(widget).toHaveTextContent('5')),
+            Effect.map((widget) => expect(widget.textContent).toBe('5')),
           )
         ),
       ),

@@ -59,7 +59,7 @@ Feature('Reading and changing shared values from on-screen widgets')
         When('the page is shown')('shown', () => Effect.succeed(true)),
         Then('the seeded value is already on screen')((_s, expect) =>
           Effect.promise(() => screen.findByTestId('balance')).pipe(
-            Effect.map((balance) => expect(balance).toHaveTextContent('7')),
+            Effect.map((balance) => expect(balance.textContent).toBe('7')),
           )
         ),
       ),
@@ -98,7 +98,7 @@ Feature('Reading and changing shared values from on-screen widgets')
           })),
         Then('the widget shows the recomputed reading')((_s, expect) =>
           Effect.promise(() => findWidgetShowing({ testId: 'reading', text: '3' })).pipe(
-            Effect.map((reading) => expect(reading).toHaveTextContent('3')),
+            Effect.map((reading) => expect(reading.textContent).toBe('3')),
           )
         ),
       ),
@@ -243,7 +243,7 @@ Feature('Reading and changing shared values from on-screen widgets')
         When('the widget is shown')('shown', () => Effect.succeed(true)),
         Then('the transformed value is on screen')((_s, expect) =>
           Effect.promise(() => screen.findByTestId('tripled')).pipe(
-            Effect.map((tripled) => expect(tripled).toHaveTextContent('21')),
+            Effect.map((tripled) => expect(tripled.textContent).toBe('21')),
           )
         ),
       ),
@@ -275,7 +275,7 @@ Feature('Reading and changing shared values from on-screen widgets')
         When('the widget is shown')('shown', () => Effect.succeed(true)),
         Then('the failure is on screen')((_s, expect) =>
           Effect.promise(() => screen.findByTestId('outcome')).pipe(
-            Effect.map((outcome) => expect(outcome).toHaveTextContent('Failure')),
+            Effect.map((outcome) => expect(outcome.textContent).toBe('Failure')),
           )
         ),
       ),
