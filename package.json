@@ -38,7 +38,7 @@
     "format:check": "./bin/dprint check",
     "gate:dist": "sandbox -- turbo --concurrency=${TURBO_CONCURRENCY:-100%} build attw",
     "gate:tasks": "sandbox --allow-host jsr.io --pass-env PLAYWRIGHT_BROWSERS_PATH --pass-env FONTCONFIG_FILE -- turbo --concurrency=${TURBO_CONCURRENCY:-50%} --continue lint lint:tsgo lint:suppressions typecheck typecheck:node test:types test test:browser test:scripts",
-    "lint": "sandbox -- turbo --concurrency=${TURBO_CONCURRENCY:-50%} lint lint:tsgo lint:suppressions",
+    "lint": "sandbox --allow-host plugins.dprint.dev -- turbo --concurrency=${TURBO_CONCURRENCY:-50%} lint lint:tsgo lint:suppressions",
     "lint:suppressions": "./bin/sandboxed -- no-inline-suppression $(git ls-files -- '*.ts' '*.tsx' '*.mts' '*.cts' '*.js' '*.jsx' '*.mjs' '*.cjs' ':!:packages/oxlint-presets/oxlint-config-frontend/ui-state-fixture/src/react-effect/' ':!:packages/gherkin/storybook-gherkin/test/browser/scenario-title.deny.ts')",
     "precommit": "pnpm exec lint-staged --no-revert --config .lintstagedrc.js",
     "prepare": "effect-tsgo patch --oxlint --no-typescript --skip-missing",

@@ -59,7 +59,7 @@ Feature('Scoped atoms that belong to one part of the page')
         ),
         Then('the widget shows the updated counter')((_s, expect) =>
           Effect.promise(() => findWidgetShowing({ testId: 'scoped-counter', text: '6' })).pipe(
-            Effect.map((counter) => expect(counter).toHaveTextContent('6')),
+            Effect.map((counter) => expect(counter.textContent).toBe('6')),
           )
         ),
       ),
@@ -88,7 +88,7 @@ Feature('Scoped atoms that belong to one part of the page')
         When('the greeting is shown')('shown', () => Effect.succeed(true)),
         Then('the input name is on screen')((_s, expect) =>
           Effect.promise(() => screen.findByTestId('greeting')).pipe(
-            Effect.map((greeting) => expect(greeting).toHaveTextContent('Ada')),
+            Effect.map((greeting) => expect(greeting.textContent).toBe('Ada')),
           )
         ),
       ),
@@ -129,7 +129,7 @@ Feature('Scoped atoms that belong to one part of the page')
           })),
         Then('the original atom is still on screen')((_s, expect) =>
           Effect.promise(() => screen.findByTestId('kept-name')).pipe(
-            Effect.map((keptName) => expect(keptName).toHaveTextContent('Ada')),
+            Effect.map((keptName) => expect(keptName.textContent).toBe('Ada')),
           )
         ),
       ),
@@ -165,7 +165,7 @@ Feature('Scoped atoms that belong to one part of the page')
         When('the widget is shown')('shown', () => Effect.succeed(true)),
         Then('the error boundary reports the missing provider')((_s, expect) =>
           Effect.promise(() => screen.findByTestId('missing-provider')).pipe(
-            Effect.map((missingProvider) => expect(missingProvider).toHaveTextContent('provider missing')),
+            Effect.map((missingProvider) => expect(missingProvider.textContent).toBe('provider missing')),
           )
         ),
       ),
