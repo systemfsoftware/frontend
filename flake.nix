@@ -15,8 +15,6 @@
     # consumer follows systemfsoftware and every producer evaluates the same
     # nixpkgs its registry entry was pushed from.
     nixpkgs.follows = "systemfsoftware/nixpkgs";
-    # The release manifest (`nix/release-hashes.json`) rides in this input, so
-    # Dependabot's bump of it is also the version and digest bump.
     comment-checker = {
       url = "github:systemfsoftware/comment-checker";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -78,9 +76,7 @@
         let
           system = pkgs.stdenv.hostPlatform.system;
           dprint = pkgs.callPackage ./nix/dprint.nix { dprintConfig = ./dprint.json; };
-          unwrapped = pkgs.callPackage ./nix/comment-checker.nix {
-            hashes = "${comment-checker}/nix/release-hashes.json";
-          };
+          unwrapped = comment-checker.packages.${system}.comment-checker;
           sandboxed = pkgs.callPackage ./nix/comment-checker-sandbox.nix {
             comment-checker = unwrapped;
           };
