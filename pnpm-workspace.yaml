@@ -77,6 +77,7 @@ minimumReleaseAgeExclude:
   - "@effect/*"
 verifyDepsBeforeRun: warn
 overrides:
+  "@opentelemetry/api": 1.10.0
   "@systemfsoftware/arethetypeswrong@*": file:.deps/arethetypeswrong.tgz
   "@systemfsoftware/arethetypeswrong-cli@*": file:.deps/arethetypeswrong-cli.tgz
   "@systemfsoftware/conformance-spec@*": file:.deps/conformance-spec.tgz
