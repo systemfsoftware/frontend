@@ -28,7 +28,7 @@
     };
     # The producers, each pinned to its default branch's commit. Each one
     # gives packages.<system>.workspace-tarballs.
-    systemfsoftware.url = "github:systemfsoftware/systemfsoftware/3ef6c21c36f19a539078b6817b495df3039cc163";
+    systemfsoftware.url = "github:systemfsoftware/systemfsoftware/d4aca35674f015b33748891e6378b33a055d1234";
     stryker-js-effect.url = "github:systemfsoftware/stryker-js-effect/bc8680e836d3df9f80dc69770a9a91390447f8f1";
     systemfsoftware-xstate.url = "github:systemfsoftware/xstate/7d7ea103304f6aaa011b04335eec4724a6b8b967";
     are-the-types-wrong-effect.url = "github:systemfsoftware/are-the-types-wrong-effect/2650b6a0c6cd3b2abdb7f429a5a55dd5221588ca";

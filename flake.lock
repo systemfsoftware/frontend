@@ -3788,17 +3788,17 @@
         "pnpm-release-management": "pnpm-release-management_16"
       },
       "locked": {
-        "lastModified": 1794437393,
-        "narHash": "sha256-SLDfn+Saqz+H42LbGsKRG1QlIr6hLfoaJ6/lQcTVZAg=",
+        "lastModified": 1794543033,
+        "narHash": "sha256-8VPhHXsBCivW25uQaDMT1vyiOrdk3g+eWtjLu3PnXmM=",
         "owner": "systemfsoftware",
         "repo": "systemfsoftware",
-        "rev": "3ef6c21c36f19a539078b6817b495df3039cc163",
+        "rev": "d4aca35674f015b33748891e6378b33a055d1234",
         "type": "github"
       },
       "original": {
         "owner": "systemfsoftware",
         "repo": "systemfsoftware",
-        "rev": "3ef6c21c36f19a539078b6817b495df3039cc163",
+        "rev": "d4aca35674f015b33748891e6378b33a055d1234",
         "type": "github"
       }
     },
