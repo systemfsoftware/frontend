@@ -6,23 +6,13 @@ queue_rules:
     queue_conditions:
       - 'commits[*].commit_message ~= (?ms)\A(?=.*^git-subtree-dir: \S+$)(?=.*^git-subtree-split: [0-9a-f]{40}$)'
       - -linear-history
-      - check-success = check
-      - or:
-          - check-success = commitlint / lint PR commits
-          - and:
-              - author = dependabot[bot]
-              - check-skipped = commitlint / lint PR commits
+      - check-success = checks / check
     merge_conditions:
-      - check-success = check
+      - check-success = checks / check
   - name: default
     # Checked on the PR itself before it enters the queue.
     queue_conditions:
-      - check-success = check
-      - or:
-          - check-success = commitlint / lint PR commits
-          - and:
-              - author = dependabot[bot]
-              - check-skipped = commitlint / lint PR commits
+      - check-success = checks / check
       - '-commits[*].commit_message ~= (?m)^git-subtree-dir: \S+$'
       - not:
           and:
@@ -35,4 +25,4 @@ queue_rules:
       - -modified-files ~= ^(repos/constitution|repos/worktrunk-scripts)/
     # Checked on Mergify's queue draft PR (mergify/merge-queue/*), i.e. CI on the PR rebased with main and any batch.
     merge_conditions:
-      - check-success = check
+      - check-success = checks / check
