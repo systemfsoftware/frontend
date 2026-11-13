@@ -12,11 +12,6 @@ export default defineConfig({
         extends: true,
         define: {
           'process.platform': JSON.stringify('linux'),
-          'process.env': JSON.stringify({
-            CI: process.env.CI,
-            AGENT: process.env.AGENT,
-            STRYKER_MUTATOR_WORKER: process.env.STRYKER_MUTATOR_WORKER,
-          }),
         },
         test: {
           name: 'browser',
