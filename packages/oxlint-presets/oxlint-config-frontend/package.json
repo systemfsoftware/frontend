@@ -1,7 +1,7 @@
 {
   "name": "@systemfsoftware/oxlint-config-frontend",
   "license": "Apache-2.0",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "TODO <todo@example.com>",
   "repository": {
     "type": "git",
