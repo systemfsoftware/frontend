@@ -20,41 +20,14 @@ All four packages are Apache-2.0 and require `effect` 4 as a peer. `effect-atom-
 
 ## Install
 
-These packages are not on npm. This repository ships them as flake outputs, and each push to `main` pushes their tarballs to [nix.systemfsoftware.com](https://nix.systemfsoftware.com). Consumers add this flake as an input and fetch the tarballs through [pnpm-release-management](https://github.com/systemfsoftware/pnpm-release-management#distribution-through-nix). Nix downloads pushed tarballs and builds the rest from source.
+Install a package from npm with its peer dependencies:
 
-### Add the flake as an input
-
-```nix
-{
-  nixConfig = {
-    extra-substituters = "https://nix.systemfsoftware.com";
-    extra-trusted-public-keys = "nix-cache-1:wXA8I4DayNW9q6enUyQA/P/nT38pGSTLt374t3gsn7M=";
-  };
-  inputs = {
-    nixpkgs.follows = "producer/nixpkgs";
-    producer.url = "github:systemfsoftware/frontend/<rev>";
-    pnpm-release-management.url = "github:systemfsoftware/pnpm-release-management";
-  };
-}
+```sh
+pnpm add @systemfsoftware/effect-atom 'effect@^4'
+pnpm add @systemfsoftware/effect-atom-react 'effect@^4' 'react@^19.2.8' 'react-dom@^19.2.8' 'scheduler@*'
+pnpm add -D @systemfsoftware/storybook-gherkin 'effect@^4' 'storybook@>=10.0.0'
+pnpm add -D @systemfsoftware/oxlint-config-frontend
 ```
-
-### Build the tarballs and the pnpm store
-
-```nix
-packages = forEachSystem (pkgs: rec {
-  producer-tarballs = pnpm-release-management.lib.mkProducerTarballs {
-    inherit pkgs;
-    producers = { inherit producer; };
-  };
-  pnpm-store = pnpm-release-management.lib.mkPnpmConsumerStore {
-    inherit pkgs;
-    src = self;
-    files.".deps" = producer-tarballs;
-  };
-});
-```
-
-The flake exposes `effect-atom`, `effect-atom-react`, `storybook-gherkin`, and `oxlint-config-frontend`, plus `workspace-tarballs` with all four. Peer dependencies install from npm as usual.
 
 ## Atoms in React
 

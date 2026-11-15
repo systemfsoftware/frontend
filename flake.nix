@@ -1,36 +1,26 @@
 {
-  description = "starter toolchain — the formatter, runtimes, systemfsoftware packages and dependency sandbox the check chain shells out to";
+  description = "starter toolchain — the formatter, runtimes, and dependency sandbox the check chain shells out to";
 
-  # nix.systemfsoftware.com is the package registry for @systemfsoftware
-  # packages: each producer pushes its tarballs there from its main branch, and
-  # this flake substitutes them.
   nixConfig = {
     extra-substituters = "https://nix.systemfsoftware.com";
     extra-trusted-public-keys = "nix-cache-1:wXA8I4DayNW9q6enUyQA/P/nT38pGSTLt374t3gsn7M=";
   };
 
   inputs = {
-    # One producer's nixpkgs: a producer input carries no `follows`, so this
-    # consumer follows systemfsoftware and every producer evaluates the same
-    # nixpkgs its registry entry was pushed from.
+    # Follows systemfsoftware's nixpkgs, which carries no `follows` of its own.
     nixpkgs.follows = "systemfsoftware/nixpkgs";
     comment-checker = {
       url = "github:systemfsoftware/comment-checker";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    # mkProducerTarballs and mkPnpmConsumerStore: the consumer route.
+    # mkPnpmConsumerStore and mkPnpmWorkspacePackages: the pnpm store and the package tarballs.
     pnpm-release-management = {
       url = "github:systemfsoftware/pnpm-release-management/ebebdfebf30205b508840ea55801d55283af7648";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.comment-checker.follows = "comment-checker";
       inputs.importPnpmLock.follows = "importPnpmLock";
     };
-    # The producers, each pinned to its default branch's commit. Each one
-    # gives packages.<system>.workspace-tarballs.
     systemfsoftware.url = "github:systemfsoftware/systemfsoftware/d4aca35674f015b33748891e6378b33a055d1234";
-    stryker-js-effect.url = "github:systemfsoftware/stryker-js-effect/bc8680e836d3df9f80dc69770a9a91390447f8f1";
-    systemfsoftware-xstate.url = "github:systemfsoftware/xstate/7d7ea103304f6aaa011b04335eec4724a6b8b967";
-    are-the-types-wrong-effect.url = "github:systemfsoftware/are-the-types-wrong-effect/2650b6a0c6cd3b2abdb7f429a5a55dd5221588ca";
     # The pnpm store is hashless: each tarball's lockfile integrity is its fetch hash, so a lockfile change needs no hash edit.
     importPnpmLock = {
       url = "github:Scrumplex/importPnpmLock.nix";
@@ -38,18 +28,11 @@
     };
   };
 
-  outputs = { self, nixpkgs, comment-checker, pnpm-release-management, systemfsoftware, stryker-js-effect, systemfsoftware-xstate, are-the-types-wrong-effect, importPnpmLock }:
+  outputs = { self, nixpkgs, comment-checker, pnpm-release-management, systemfsoftware, importPnpmLock }:
     let
       lib = nixpkgs.lib;
       systems = [ "x86_64-linux" "aarch64-linux" ];
       forEachSystem = fn: lib.genAttrs systems (system: fn nixpkgs.legacyPackages.${system});
-
-      # The producers whose packages this workspace installs. Their public
-      # members share no name, so no precedence is needed.
-      producers = { inherit systemfsoftware stryker-js-effect systemfsoftware-xstate are-the-types-wrong-effect; };
-
-      # Every producer's tarball, under a name with no version, laid in `.deps`.
-      producerTarballsOf = pkgs: pnpm-release-management.lib.mkProducerTarballs { inherit pkgs producers; };
 
       # The lockfile, the workspace doc and every manifest: all the consumer store reads.
       consumerSrc = lib.fileset.toSource {
@@ -67,7 +50,6 @@
           src = self;
           pname = "starter";
           pnpm = pkgs.pnpm_12;
-          files.".deps" = producerTarballsOf pkgs;
         }) [ "pnpm-store" "mitmCache" ];
     in
     {
@@ -83,11 +65,9 @@
           workspace = workspaceOf pkgs;
           own = {
             inherit dprint sandbox;
-            producer-tarballs = producerTarballsOf pkgs;
             pnpm-store = pnpm-release-management.lib.mkPnpmConsumerStore {
               inherit pkgs;
               src = consumerSrc;
-              files.".deps" = producerTarballsOf pkgs;
             };
             sandbox-proofs = (pkgs.callPackage "${pnpm-release-management}/nix/sandbox/proofs.nix" {
               inherit pkgs sandbox;
@@ -138,7 +118,6 @@
           SANDBOX_PNPM_STORE = own.pnpm-store;
           shellHook = ''
             git config core.hooksPath .husky
-            ${own.producer-tarballs.shellHook}
           '';
           env = pkgs.lib.optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
             PLAYWRIGHT_BROWSERS_PATH = "${playwrightBrowsers}";
