@@ -12,6 +12,7 @@ permissions:
   contents: write
   pull-requests: write
   actions: write
+  id-token: write
 
 jobs:
   types:
@@ -39,10 +40,12 @@ jobs:
   release:
     name: release · shared tooling
     needs: types
-    uses: systemfsoftware/pnpm-release-management/.github/workflows/release.yml@main
+    uses: systemfsoftware/pnpm-release-management/.github/workflows/release.yml@9615867c17489fb04be8bc74f568659d687df612
     with:
       ci-workflow: check.yml
+      npm-publish: true
     permissions:
       contents: write
       pull-requests: write
       actions: write
+      id-token: write
