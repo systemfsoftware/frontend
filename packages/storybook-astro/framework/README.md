@@ -1,0 +1,38 @@
+# @systemfsoftware/storybook-astro-framework
+
+The community-supported [Storybook](https://storybook.js.org/) framework for [Astro](https://astro.build/).
+
+> Astro 5, 6 & 7 + Storybook 10 & 11
+
+## Install
+
+```bash
+npm install -D storybook @storybook/builder-vite @systemfsoftware/storybook-astro-framework
+```
+
+## Setup
+
+```javascript
+// .storybook/main.js
+export default {
+  stories: ['../src/**/*.stories.@(js|jsx|ts|tsx)'],
+  framework: {
+    name: '@systemfsoftware/storybook-astro-framework',
+    options: {},
+  },
+}
+```
+
+## Requirements
+
+Node.js 20.16+, 22.19+ or 24+ (22.12+ for Storybook 11); Storybook 10 or 11, with `@storybook/builder-vite` at the same version as `storybook`; Astro 5.5.3+, 6 or 7; Vite 6.4.1+, 7 or 8
+
+## Links
+
+- [Getting Started](https://storybook-astro.org/getting-started)
+- [Live Demo](https://demo.storybook-astro.org)
+- [GitHub](https://github.com/storybook-astro/storybook-astro)
+
+## License
+
+Apache-2.0. The upstream code is MIT, copyright the storybook-astro authors; see `NOTICE`.

@@ -1,0 +1,133 @@
+import type { WebRenderer } from 'storybook/internal/types'
+import type { AstroComponentMarker } from './astroComponentMarker'
+
+export {
+  ASTRO_COMPONENT_MARKER,
+  isAstroComponentFactory,
+  isAstroComponentMarker,
+  isAstroComponentSlot,
+  serializeAstroComponentMarkers,
+} from './astroComponentMarker'
+export type { AstroComponentMarker } from './astroComponentMarker'
+
+/**
+ * Marks the `<style>` elements the render handler puts ahead of a story's
+ * markup, one per component `<style>` block, so the renderer can move them
+ * into the preview head (issue #224).
+ */
+export const STORY_STYLE_ATTRIBUTE = 'data-storybook-astro-styles'
+
+/**
+ * A child component placed in a slot together with its own props and slots — the
+ * "configured component" slot value. After crossing the render boundary
+ * `component` is a marker; in the testing/portable path it's a real factory. Its
+ * `slots` are themselves {@link SlotValue}s, so configured components nest.
+ */
+export type AstroComponentSlot = {
+  component: AstroComponentMarker | AstroComponentFactory
+  props?: Record<string, unknown>
+  slots?: Record<string, SlotValue>
+}
+
+/** One slot entry: an HTML string, a component reference, or a configured component. */
+type SingleSlotValue = string | AstroComponentMarker | AstroComponentFactory | AstroComponentSlot
+
+/** Slot content: a single entry, or a list of entries concatenated into one slot. */
+export type SlotValue = SingleSlotValue | SingleSlotValue[]
+
+/**
+ * Mirrors the shape that the Astro language server gives to `.astro` imports:
+ * a callable factory function with an optional `isAstroComponentFactory` marker.
+ * Keeping this structurally compatible ensures that assigning an imported Astro
+ * component to `component:` is clean under strict TypeScript / ESLint rules.
+ */
+export type AstroComponentFactory = {
+  (result: unknown, props: unknown, slots: unknown): unknown | Promise<unknown>
+  isAstroComponentFactory?: boolean
+  moduleId?: string | undefined
+}
+
+/**
+ * Storybook renderer type for Astro components.
+ *
+ * Astro components are server-side rendered, so storyResult can be an Astro component
+ * factory (routed to SSR), a string (HTML), an HTMLElement (DOM node), or — once
+ * `applyDecorators` has composed a decorator chain around it — any other SlotValue
+ * shape (an `AstroComponentSlot` wrapper, or an array mixing wrapper strings with
+ * nested nodes). See docs/specs/decorators.md.
+ */
+export interface AstroRenderer extends WebRenderer {
+  component: AstroComponentFactory | string | HTMLElement | ((...args: unknown[]) => unknown)
+  storyResult: HTMLElement | SlotValue
+}
+
+export type RenderComponentInput = {
+  component: string
+  args: Record<string, unknown>
+  slots: Record<string, SlotValue>
+  /**
+   * The serialized decorator tree (Step 3), sent alongside the undecorated
+   * `component`/`args`/`slots` above so an older server that doesn't know about
+   * `node` can still render the story undecorated instead of erroring — graceful
+   * version skew (see docs/specs/decorators.md#known-limitations).
+   */
+  node?: SlotValue
+  story?: {
+    id: string
+    title?: string
+    name?: string
+  }
+}
+
+export type RenderRequestOptions = {
+  /**
+   * Storybook's abort signal for the story. When it fires, the dev transport
+   * drops the request and the server-mode transport cancels the fetch, and both
+   * reject with the signal's reason (#342). The static transport ignores it,
+   * since it reads prerendered HTML from one shared fetch, so callers must not
+   * rely on the transport alone to settle an aborted render.
+   */
+  signal?: AbortSignal
+  timeoutMs?: number
+}
+
+export type RenderResponseMessage = {
+  type: 'astro:render:response'
+  data: {
+    id: string
+    html: string
+  }
+}
+
+export type RenderRequestMessage = {
+  type: 'astro:render:request'
+  data: RenderComponentInput & {
+    id: string
+  }
+}
+
+export type Message = RenderRequestMessage | RenderResponseMessage
+
+export type RenderPromise = {
+  resolve: (value: RenderResponseMessage['data']) => void
+  reject: (reason?: unknown) => void
+  timeoutId: ReturnType<typeof setTimeout>
+}
+
+// Global type extensions
+declare global {
+  interface Window {
+    preact?: {
+      h: (
+        type: string | ((props: Record<string, unknown>) => unknown),
+        props: Record<string, unknown> | null,
+        ...children: unknown[]
+      ) => unknown
+      render: (element: unknown, container: HTMLElement) => void
+    }
+    Alpine?: {
+      start: () => void
+      _isStarted?: boolean
+    }
+  }
+}

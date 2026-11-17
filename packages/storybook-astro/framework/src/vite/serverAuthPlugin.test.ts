@@ -1,0 +1,68 @@
+import type { Plugin, PluginOption } from 'vite'
+import { describe, expect, test } from 'vitest'
+import { SERVER_AUTH_MODULE_ID, serverAuthPlugin } from './serverAuthPlugin.ts'
+
+function getPlugin(pluginOption: PluginOption): Plugin {
+  if (Array.isArray(pluginOption)) {
+    throw new Error('Expected a single plugin object, but got a plugin array.')
+  }
+
+  if (!pluginOption || typeof pluginOption !== 'object') {
+    throw new Error('Expected plugin option to be an object.')
+  }
+
+  return pluginOption as Plugin
+}
+
+function getHookHandler<T>(hook: unknown): T {
+  if (typeof hook === 'function') {
+    return hook as T
+  }
+
+  if (
+    typeof hook === 'object' &&
+    hook !== null &&
+    'handler' in hook &&
+    typeof (hook as { handler?: unknown }).handler === 'function'
+  ) {
+    return (hook as { handler: T }).handler
+  }
+
+  throw new Error('Expected hook to be a function or an object with a handler function.')
+}
+
+describe('serverAuthPlugin', () => {
+  test('normalizes auth token and header values', async () => {
+    const plugin = getPlugin(
+      serverAuthPlugin({
+        authToken: '  test-token  ',
+        authHeader: '  X-Storybook-Token  ',
+      }),
+    )
+    const resolveId = getHookHandler<(id: string) => string | undefined>(plugin.resolveId)
+    const load = getHookHandler<(id: string) => Promise<string | undefined>>(plugin.load)
+    const resolvedId = resolveId(SERVER_AUTH_MODULE_ID)
+
+    expect(resolvedId).toBe(`\0${SERVER_AUTH_MODULE_ID}`)
+    await expect(load(resolvedId!)).resolves.toBe(
+      'export const storybookAstroServerAuthToken = "test-token";\n' +
+        'export const storybookAstroServerAuthHeader = "x-storybook-token";',
+    )
+  })
+
+  test('falls back to authorization header and undefined token', async () => {
+    const plugin = getPlugin(
+      serverAuthPlugin({
+        authToken: '   ',
+      }),
+    )
+    const load = getHookHandler<(id: string) => Promise<string | undefined>>(plugin.load)
+
+    await expect(
+      load(`\0${SERVER_AUTH_MODULE_ID}`),
+    ).resolves.toBe(
+      'export const storybookAstroServerAuthToken = undefined;\n' +
+        'export const storybookAstroServerAuthHeader = "authorization";',
+    )
+  })
+})

@@ -1,0 +1,200 @@
+{
+  "name": "@systemfsoftware/storybook-astro-framework",
+  "license": "Apache-2.0",
+  "version": "1.17.0",
+  "author": "TODO <todo@example.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/systemfsoftware/frontend.git",
+    "directory": "packages/storybook-astro/framework"
+  },
+  "homepage": "https://github.com/systemfsoftware/frontend/tree/main/packages/storybook-astro/framework#readme",
+  "bugs": "https://github.com/systemfsoftware/frontend/issues",
+  "description": "Storybook framework for Astro components, forked under systemfsoftware from storybook-astro/storybook-astro.",
+  "keywords": [
+    "storybook",
+    "astro",
+    "vite"
+  ],
+  "type": "module",
+  "engines": {
+    "node": ">=20.16.0 || >=22.19.0 || >=24.0.0"
+  },
+  "files": [
+    "dist",
+    "src",
+    "preset.ts",
+    "package.json",
+    "README.md",
+    "LICENSE",
+    "NOTICE"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./integrations": {
+      "types": "./dist/integrations/index.d.ts",
+      "import": "./dist/integrations/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing.d.ts",
+      "import": "./dist/testing.js"
+    },
+    "./vitest": {
+      "types": "./dist/vitest/index.d.ts",
+      "import": "./dist/vitest/index.js"
+    },
+    "./node": {
+      "types": "./dist/node/index.d.ts",
+      "import": "./dist/node/index.js"
+    },
+    "./docgen-worker": {
+      "types": "./dist/docgen/docgen-worker.d.ts",
+      "import": "./dist/docgen/docgen-worker.js"
+    },
+    "./preset": {
+      "types": "./dist/preset.d.ts",
+      "import": "./dist/preset.js"
+    },
+    "./image-service": {
+      "types": "./dist/storybookImageService.d.ts",
+      "default": "./dist/storybookImageService.js"
+    },
+    "./shim": {
+      "types": "./src/shim.d.ts"
+    },
+    "./package.json": "./package.json"
+  },
+  "scripts": {
+    "clean": "rimraf dist",
+    "build": "tsdown -l warn && node scripts/patch-shim-ref.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "f=${OXLINT_FORMAT:-${AGENT:+agent}}; oxlint . --config oxlint.config.ts --format=${f:-default}",
+    "attw": "attw --pack ."
+  },
+  "dependencies": {
+    "@systemfsoftware/storybook-astro-renderer": "workspace:*",
+    "get-tsconfig": "5.0.0-beta.4",
+    "hono": "catalog:",
+    "sanitize-html": "catalog:",
+    "vite": "catalog:"
+  },
+  "peerDependencies": {
+    "@astrojs/alpinejs": "^0.4.5 || ^0.5.0 || ^1.0.0",
+    "@astrojs/preact": "^4.0.8 || ^5.0.0 || ^6.0.0",
+    "@astrojs/react": "^4.2.3 || ^5.0.0 || ^6.0.0 || ^7.0.0",
+    "@astrojs/solid-js": "^5.0.7 || ^6.0.0 || ^7.0.0",
+    "@astrojs/svelte": "^7.0.9 || ^8.0.0 || ^9.0.0",
+    "@astrojs/vue": "^5.0.9 || ^6.0.0 || ^7.0.0",
+    "@preact/preset-vite": "^2.10.1",
+    "@storybook/preact": "^10.0.0 || ^11.0.0-beta.0",
+    "@storybook/react": "^10.0.0 || ^11.0.0-beta.0",
+    "@storybook/svelte": "^10.0.0 || ^11.0.0-beta.0",
+    "@storybook/vue3": "^10.0.0 || ^11.0.0-beta.0",
+    "@vitejs/plugin-react": "^5.0.0 || ^6.0.0",
+    "@vitejs/plugin-vue": "^5.2.3 || ^6.0.0",
+    "@vitejs/plugin-vue-jsx": "^4.1.2 || ^5.0.0",
+    "astro": "^5.5.3 || ^6.0.0 || ^7.0.0",
+    "storybook": "^10.0.0 || ^11.0.0-beta.0",
+    "storybook-solidjs-vite": ">=10.0.0 <10.1.0 || ^10.6.0 || ^11.0.0-beta.0",
+    "typescript": "^5.0.0 || ^6.0.0",
+    "vite": "^6.4.1 || ^7.0.0 || ^8.0.0",
+    "vitest": "^4.1.0 || ^5.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@astrojs/alpinejs": {
+      "optional": true
+    },
+    "@astrojs/preact": {
+      "optional": true
+    },
+    "@astrojs/react": {
+      "optional": true
+    },
+    "@astrojs/solid-js": {
+      "optional": true
+    },
+    "@astrojs/svelte": {
+      "optional": true
+    },
+    "@astrojs/vue": {
+      "optional": true
+    },
+    "@preact/preset-vite": {
+      "optional": true
+    },
+    "@storybook/preact": {
+      "optional": true
+    },
+    "@storybook/react": {
+      "optional": true
+    },
+    "@storybook/svelte": {
+      "optional": true
+    },
+    "@storybook/vue3": {
+      "optional": true
+    },
+    "@vitejs/plugin-react": {
+      "optional": true
+    },
+    "@vitejs/plugin-vue": {
+      "optional": true
+    },
+    "@vitejs/plugin-vue-jsx": {
+      "optional": true
+    },
+    "storybook-solidjs-vite": {
+      "optional": true
+    },
+    "typescript": {
+      "optional": true
+    },
+    "vitest": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@astrojs/react": "catalog:",
+    "@preact/preset-vite": "^2.10.3",
+    "@storybook/preact": "catalog:",
+    "@storybook/react": "catalog:",
+    "@storybook/svelte": "catalog:",
+    "@storybook/vue3": "catalog:",
+    "@sveltejs/vite-plugin-svelte": "^6.0.0",
+    "@systemfsoftware/arethetypeswrong-cli": "^4.2.0",
+    "@systemfsoftware/oxlint-config-frontend": "workspace:^",
+    "@systemfsoftware/storybook-astro-renderer": "workspace:*",
+    "@systemfsoftware/tsdown-config": "^0.1.2",
+    "@testing-library/dom": "catalog:",
+    "@testing-library/react": "catalog:",
+    "@types/node": "catalog:",
+    "@types/react": "catalog:",
+    "@types/react-dom": "catalog:",
+    "@types/sanitize-html": "^2.16.0",
+    "@vitejs/plugin-react": "catalog:",
+    "@vitejs/plugin-vue": "^6.0.0",
+    "@vitejs/plugin-vue-jsx": "^5.0.0",
+    "alpinejs": "^3.14.9",
+    "astro": "catalog:",
+    "oxlint": "catalog:oxlint",
+    "preact": "^10.0.0",
+    "react": "catalog:",
+    "react-dom": "catalog:",
+    "rimraf": "catalog:",
+    "solid-js": "^1.9.0",
+    "storybook": "catalog:",
+    "storybook-solidjs-vite": "^10.6.0",
+    "svelte": "^5.0.0",
+    "tsdown": "catalog:",
+    "typescript": "npm:typescript@6.0.3",
+    "vite": "catalog:",
+    "vite-plugin-solid": "^2.11.10",
+    "vitest": "catalog:",
+    "vue": "^3.5.0"
+  }
+}
