@@ -129,6 +129,23 @@ export interface SerializableSpec<S extends Schema.Constraint = Schema.Constrain
 }
 
 /**
+ * How a runtime atom's members are built for the atom they are read from.
+ * `bound` builds them once per minted atom, so a member keeps its identity;
+ * `build` is the unmemoized builder a configured copy rebinds to itself.
+ *
+ * @since 4.0.0
+ */
+export interface RuntimeBinding {
+  readonly build: (self: Atom) => ErasedRuntime
+  readonly bound: (self: Atom) => ErasedRuntime
+}
+
+const bindRuntime = (build: (self: Atom) => ErasedRuntime): RuntimeBinding => {
+  let members: ErasedRuntime | undefined
+  return { build, bound: (self) => (members ??= build(self)) }
+}
+
+/**
  * The runtime members an atom spec stores, with their service and error types erased.
  *
  * @since 4.0.0
@@ -164,7 +181,7 @@ export interface AtomSpec {
   readonly initialValueTarget: Atom | undefined
   readonly serializable: SerializableSpec | undefined
   readonly serverValue: ((get: <A>(atom: Atom<A>) => A) => Top) | undefined
-  readonly runtime: ErasedRuntime | undefined
+  readonly runtime: RuntimeBinding | undefined
 }
 
 /**
@@ -498,7 +515,7 @@ const Writables = Blueprint.make<AtomSpec, WritableIndex>()(TypeId).operations<W
   targets: { ...targets, write: (self: Atom) => self.spec.write },
 })
 
-const runtimeOf = (self: Atom): ErasedRuntime | undefined => self.spec.runtime
+const runtimeOf = (self: Atom): ErasedRuntime | undefined => self.spec.runtime?.bound(self)
 
 const Runtimes = Blueprint.make<AtomSpec, AtomIndex>()(TypeId).operations<RuntimeOps>()({
   operations,
@@ -519,7 +536,7 @@ function remint(spec: AtomSpec): Atom {
   if (spec.runtime === undefined) {
     return mintPlain(spec)
   }
-  return Runtimes.of(spec)
+  return Runtimes.of({ ...spec, runtime: bindRuntime(spec.runtime.build) })
 }
 
 /**
@@ -577,19 +594,27 @@ export const writable: {
     Writables.of<{ readonly Value: R; readonly Write: (value: W) => void }>({ ...defaults, read, write, refresh }),
 )
 
+const failNotRuntime = (): never => {
+  throw new Error('runtime members were read from an atom that is not a runtime atom')
+}
+
+const isRuntimeAtom = <R, ER>(atom: Atom): atom is AtomRuntime<R, ER> => atom.spec.runtime !== undefined
+
 /**
- * Creates a runtime atom from its read function and the members its factory builds.
+ * Creates a runtime atom from its read function and the members its factory builds
+ * for the runtime atom they are read from, so a configured copy of the runtime
+ * (`keepAlive`, `withLabel`, ...) builds its members against itself.
  *
  * @since 4.0.0
  */
 export const runtime = <R, ER>(parts: {
   readonly read: (get: AtomContext) => AsyncResult.Result<Context.Context<R>, ER>
-  readonly members: RuntimeMembers<R, ER>
+  readonly members: (self: () => AtomRuntime<R, ER>) => RuntimeMembers<R, ER>
 }): AtomRuntime<R, ER> =>
   Runtimes.of<{ readonly Value: AsyncResult.Result<Context.Context<R>, ER> }>({
     ...defaults,
     read: parts.read,
-    runtime: parts.members,
+    runtime: bindRuntime((self) => parts.members(() => (isRuntimeAtom<R, ER>(self) ? self : failNotRuntime()))),
   })
 
 const refreshThrough = (self: Atom): Refresh => self.spec.refresh ?? ((refresh) => refresh(self))
@@ -2263,9 +2288,7 @@ export function context(options?: {
       | ((get: AtomContext) => Layer.Layer<R, E, RIn>),
   ): AtomRuntime<R, E> {
     const layerAtom = keepAlive(runtimeLayerAtom(create, globalLayer))
-    let runtimeValue: AtomRuntime<R, E>
-    const members = makeRuntimeMembers<R, E>(() => runtimeValue, factory, layerAtom)
-    runtimeValue = runtime({
+    return runtime<R, E>({
       read: (get) => {
         const layer = get(layerAtom)
         const built = Effect.flatMap(
@@ -2274,9 +2297,8 @@ export function context(options?: {
         )
         return effect(get, built, { uninterruptible: true })
       },
-      members,
+      members: (self) => makeRuntimeMembers<R, E>(self, factory, layerAtom),
     })
-    return runtimeValue
   }
   const factory = assignRuntimeFactory(factoryFn, memoMap, addGlobalLayer, withReactivity)
   return factory
