@@ -129,6 +129,23 @@ export interface SerializableSpec<S extends Schema.Constraint = Schema.Constrain
 }
 
 /**
+ * How a runtime atom's members are built for the atom they are read from.
+ * `bound` builds them once per minted atom, so a member keeps its identity;
+ * `build` is the unmemoized builder a configured copy rebinds to itself.
+ *
+ * @since 4.0.0
+ */
+export interface RuntimeBinding {
+  readonly build: (self: Atom) => ErasedRuntime
+  readonly bound: (self: Atom) => ErasedRuntime
+}
+
+const bindRuntime = (build: (self: Atom) => ErasedRuntime): RuntimeBinding => {
+  let members: ErasedRuntime | undefined
+  return { build, bound: (self) => (members ??= build(self)) }
+}
+
+/**
  * The runtime members an atom spec stores, with their service and error types erased.
  *
  * @since 4.0.0
@@ -164,7 +181,7 @@ export interface AtomSpec {
   readonly initialValueTarget: Atom | undefined
   readonly serializable: SerializableSpec | undefined
   readonly serverValue: ((get: <A>(atom: Atom<A>) => A) => Top) | undefined
-  readonly runtime: ((self: Atom) => ErasedRuntime) | undefined
+  readonly runtime: RuntimeBinding | undefined
 }
 
 /**
@@ -498,7 +515,7 @@ const Writables = Blueprint.make<AtomSpec, WritableIndex>()(TypeId).operations<W
   targets: { ...targets, write: (self: Atom) => self.spec.write },
 })
 
-const runtimeOf = (self: Atom): ErasedRuntime | undefined => self.spec.runtime?.(self)
+const runtimeOf = (self: Atom): ErasedRuntime | undefined => self.spec.runtime?.bound(self)
 
 const Runtimes = Blueprint.make<AtomSpec, AtomIndex>()(TypeId).operations<RuntimeOps>()({
   operations,
@@ -519,7 +536,7 @@ function remint(spec: AtomSpec): Atom {
   if (spec.runtime === undefined) {
     return mintPlain(spec)
   }
-  return Runtimes.of(spec)
+  return Runtimes.of({ ...spec, runtime: bindRuntime(spec.runtime.build) })
 }
 
 /**
@@ -597,7 +614,7 @@ export const runtime = <R, ER>(parts: {
   Runtimes.of<{ readonly Value: AsyncResult.Result<Context.Context<R>, ER> }>({
     ...defaults,
     read: parts.read,
-    runtime: (self) => parts.members(() => (isRuntimeAtom<R, ER>(self) ? self : failNotRuntime())),
+    runtime: bindRuntime((self) => parts.members(() => (isRuntimeAtom<R, ER>(self) ? self : failNotRuntime()))),
   })
 
 const refreshThrough = (self: Atom): Refresh => self.spec.refresh ?? ((refresh) => refresh(self))

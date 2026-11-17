@@ -23,7 +23,7 @@ const value = AtomReact.useAtomValue(count)
 
 ## Owning the registry
 
-The code that mounts the app owns its registry: an app's entry, an island's module, a per-request server handler, or a Storybook story's loader. It creates the registry before the first render, passes it to `RegistryProvider`, and disposes it at teardown. `RegistryProvider` only provides the registry it is given.
+The code that mounts the app owns its registry: an app's entry, an island's module, a per-request server handler, or a Storybook story's loader. It creates the registry before the first render, passes it to `RegistryProvider`, and disposes it when that owner ends. A registry that lives as long as the page is never disposed (see Islands). `RegistryProvider` only provides the registry it is given.
 
 ```ts
 import { Atom } from '@systemfsoftware/effect-atom'
@@ -62,7 +62,7 @@ An island that takes no server-data props makes its registry at module scope, `A
 
 - **Props.** A supported island seeds no atom from its props: props exist only inside the island's first render. Its server data comes through atoms over the app runtime's services. Props that seed nothing, such as a label or an id, are fine.
 - **Server render.** When the island is also rendered on the server, its module-scope registry is shared by every request in that process. Every atom the island reads during a server render carries `Atom.withServerValue` with a request-independent value, or `Atom.withServerValueInitial` for a result atom; otherwise render it client-only.
-- **Teardown.** The island's teardown is the document's unload. When a client-side navigation unmounts the island, each atom it no longer reads is released and its fiber interrupted; a `keepAlive` atom stays in the registry for the next page that mounts the island. No island calls `Atom.Registry.dispose`.
+- **Teardown.** An island's registry lives as long as the page, and nothing disposes it: a dispose on `unload` or `beforeunload` makes the page ineligible for the back/forward cache, and a restored page would hold a disposed registry. When a client-side navigation unmounts the island, each atom it no longer reads is released and its fiber interrupted; a `keepAlive` atom stays in the registry for the next page that mounts the island. No island calls `Atom.Registry.dispose`.
 
 ## Several roots sharing one runtime
 
@@ -84,7 +84,7 @@ Every root renders `<AtomReact.RegistryProvider registry={registry}>` with that 
 - **Why the runtime atom is kept alive.** A runtime atom is released when its last subscriber goes. Without `Atom.keepAlive`, the page's first root unmounting drops the subscriber count to 0, the Layer's scope closes, and the next root to mount rebuilds it. `Atom.keepAlive(runtime)` keeps the runtime in the registry, and every atom made from it (`runtime.atom`, `runtime.fn`, and the rest) reads that kept-alive runtime, so a later root receives the same service instance.
 - **Why there is no module-level memo map.** `Atom.context({ memoMap })` would share built Layers across every registry, including the fresh one a test or Storybook story makes and disposes per case, so a disposed registry's Layer would leak into the next case. Leave `memoMap` unset: a registry made per case still builds, and on `Atom.Registry.dispose` releases, its own Layer.
 
-Release the shared registry at the document's unload, as in Islands. A test or story does not import the shared registry; it makes its own and reads the same atoms through it.
+Never dispose the shared registry; its lifetime is the page's, as in Islands. A test or story does not import the shared registry; it makes its own, disposes it in its own cleanup, and reads the same atoms through it.
 
 ## API
 
