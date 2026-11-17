@@ -116,3 +116,15 @@ describe('an atom is a blueprint', () => {
     expect<Atom.Type<typeof draft>>().type.toBe<number>()
   })
 })
+
+describe('a runtime atom is a blueprint', () => {
+  const runtime = Atom.context()(Layer.succeed(NotRegistry, 1))
+
+  it('Should_KeepTheRuntimeVariantWithItsMembers_When_ConfigurationStepIsApplied', () => {
+    expect(runtime.keepAlive()).type.toBe<Atom.AtomRuntime<NotRegistry, never>>()
+    expect(Atom.keepAlive(runtime)).type.toBe<Atom.AtomRuntime<NotRegistry, never>>()
+    expect(pipe(runtime, Atom.keepAlive, Atom.withLabel('runtime'))).type.toBe<Atom.AtomRuntime<NotRegistry, never>>()
+    expect(Atom.keepAlive(runtime).atom).type.toBe<typeof runtime.atom>()
+    expect(Atom.keepAlive(runtime).fn).type.toBe<typeof runtime.fn>()
+  })
+})

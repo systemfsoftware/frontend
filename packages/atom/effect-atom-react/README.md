@@ -74,15 +74,14 @@ import { AtomReact } from '@systemfsoftware/effect-atom-react'
 
 export const registry = Atom.Registry.make({ scheduleTask: AtomReact.scheduleTask })
 
-export const runtime = Atom.context()(AppLayer)
-// keepAlive on every atom the roots read from the runtime
-export const gateway = Atom.keepAlive(runtime.atom(Gateway.use((service) => Effect.succeed(service))))
+export const runtime = Atom.keepAlive(Atom.context()(AppLayer))
+export const gateway = runtime.atom(Gateway.use((service) => Effect.succeed(service)))
 ```
 
 Every root renders `<AtomReact.RegistryProvider registry={registry}>` with that registry.
 
 - **Why the registry is shared.** `Atom.context()` with no options scopes its memo map to each registry, so a Layer is built once per registry. Roots on different registries build it once each; roots on one registry build it once.
-- **Why the atoms the roots read are kept alive.** A runtime atom is released when its last subscriber goes. Without `Atom.keepAlive`, the page's first root unmounting drops the subscriber count to 0, the Layer's scope closes, and the next root to mount rebuilds it. A kept-alive atom that reads the runtime holds the runtime as a dependency, so a later root receives the same service instance. Wrap the atoms made from the runtime (`runtime.atom`, `runtime.fn`), not the runtime atom itself: `runtime.atom` and its siblings read the runtime atom `Atom.context()` returned, and `Atom.keepAlive(runtime)` returns a different atom they do not read.
+- **Why the runtime atom is kept alive.** A runtime atom is released when its last subscriber goes. Without `Atom.keepAlive`, the page's first root unmounting drops the subscriber count to 0, the Layer's scope closes, and the next root to mount rebuilds it. `Atom.keepAlive(runtime)` keeps the runtime in the registry, and every atom made from it (`runtime.atom`, `runtime.fn`, and the rest) reads that kept-alive runtime, so a later root receives the same service instance.
 - **Why there is no module-level memo map.** `Atom.context({ memoMap })` would share built Layers across every registry, including the fresh one a test or Storybook story makes and disposes per case, so a disposed registry's Layer would leak into the next case. Leave `memoMap` unset: a registry made per case still builds, and on `Atom.Registry.dispose` releases, its own Layer.
 
 Release the shared registry at the document's unload, as in Islands. A test or story does not import the shared registry; it makes its own and reads the same atoms through it.

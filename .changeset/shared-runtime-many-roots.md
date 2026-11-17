@@ -1,5 +1,8 @@
 ---
+"@systemfsoftware/effect-atom": major
 "@systemfsoftware/effect-atom-react": patch
 ---
 
-Documents how a page with several independently mounted React roots, such as an island architecture, shares one registry and one built runtime Layer: own the registry at module scope, pass it to every root's `RegistryProvider`, and wrap the atoms read from the runtime in `Atom.keepAlive` so unmounting a root does not release the Layer. No API changed.
+`Atom.keepAlive`, `Atom.setIdleTTL`, `Atom.withLabel` and every other configuration step applied to a runtime atom now return a runtime whose `atom`, `fn`, `pull` and `subscriptionRef` members read that returned runtime. Before, they read the runtime `Atom.context()` first returned, so `Atom.keepAlive(Atom.context()(layer))` did not keep the Layer alive. `Atom.runtime` now takes `members` as a function of the runtime it builds for: `members: (self) => RuntimeMembers`.
+
+The React README documents how a page with several independently mounted roots, such as an island architecture, shares one registry and one built runtime Layer.

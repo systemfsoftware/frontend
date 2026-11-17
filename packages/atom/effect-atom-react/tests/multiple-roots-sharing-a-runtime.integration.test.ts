@@ -68,13 +68,11 @@ Feature('Several roots on one page sharing one registry and one built layer')
     scenario(
       'A second root mounted after the first one unmounted reuses the layer the first root built',
       Gherkin.Do.pipe(
-        Given('a page registry shared by every root and a service atom kept alive')('ctx', () =>
+        Given('a page registry shared by every root and a runtime kept alive')('ctx', () =>
           Effect.sync(() => {
             const { counts, layer } = makeGatewayLayer()
-            const runtime = Atom.context()(layer)
-            const gateway = Atom.keepAlive(
-              runtime.atom((_get) => GatewayService.use((service) => Effect.succeed(service))),
-            )
+            const runtime = Atom.keepAlive(Atom.context()(layer))
+            const gateway = runtime.atom((_get) => GatewayService.use((service) => Effect.succeed(service)))
             return { counts, gateway, registry: ownRegistry() }
           })),
         When('root A reads the service and unmounts, and then root B mounts on the same registry')(
@@ -104,15 +102,13 @@ Feature('Several roots on one page sharing one registry and one built layer')
     scenario(
       'A fresh registry per test case builds and releases its own layer',
       Gherkin.Do.pipe(
-        Given('the same kept-alive service atom and a layer that counts its builds and releases')(
+        Given('the same kept-alive runtime and a layer that counts its builds and releases')(
           'ctx',
           () =>
             Effect.sync(() => {
               const { counts, layer } = makeGatewayLayer()
-              const runtime = Atom.context()(layer)
-              const gateway = Atom.keepAlive(
-                runtime.atom((_get) => GatewayService.use((service) => Effect.succeed(service))),
-              )
+              const runtime = Atom.keepAlive(Atom.context()(layer))
+              const gateway = runtime.atom((_get) => GatewayService.use((service) => Effect.succeed(service)))
               return { counts, gateway }
             }),
         ),
