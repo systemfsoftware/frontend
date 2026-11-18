@@ -2,7 +2,7 @@ import { expect, it } from 'vitest'
 
 import { lintDiagnostics } from './__fixtures__/oxlint-diagnostics.js'
 
-// Written out from compound-packs/ui-state/react-runs-no-effect.md, not read from the preset.
+// Written out from the ui-state pack rule react-runs-no-effect, not read from the preset.
 const PACK_RULE = 'ui-state/react-runs-no-effect'
 const EFFECT_BAN_CODES: Record<string, true> = {
   'eslint(no-restricted-imports)': true,
