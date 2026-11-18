@@ -5,7 +5,7 @@ import { expect, it } from 'vitest'
 
 import { lintDiagnostics } from './__fixtures__/oxlint-diagnostics.js'
 
-// R5 of compound-packs/ui-state/server-data-lives-in-atoms.md, written out from the pack rule, not read from the preset.
+// The ui-state pack rule server-data-lives-in-atoms, written out from the pack rule, not read from the preset.
 const SERVER_STATE = [
   '@tanstack/react-query',
   '@tanstack/react-query-devtools',
