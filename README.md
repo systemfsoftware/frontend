@@ -95,7 +95,7 @@ import { defineConfig } from 'oxlint'
 export default defineConfig({ extends: [recommended] })
 ```
 
-The rules behind these bans, with the incidents that led to them, are in [`compound-packs/ui-state`](compound-packs/ui-state) and [`compound-packs/storybook-testing`](compound-packs/storybook-testing).
+This repository enrols the compound packs from [systemfsoftware/systemfsoftware](https://github.com/systemfsoftware/systemfsoftware/tree/main/compound-packs) at `main` (`.compound-engineering/config.yaml`). The rules behind these bans are in its [`ui-state`](https://github.com/systemfsoftware/systemfsoftware/tree/main/compound-packs/ui-state) and [`ui-testing`](https://github.com/systemfsoftware/systemfsoftware/tree/main/compound-packs/ui-testing) packs.
 
 ## The reference site
 
@@ -104,8 +104,8 @@ The rules behind these bans, with the incidents that led to them, are in [`compo
 ## Documentation
 
 - [docs/site.md](docs/site.md): running and deploying the reference site, and its CI credentials
-- [compound-packs/ui-state](compound-packs/ui-state): how a React application holds state
-- [compound-packs/storybook-testing](compound-packs/storybook-testing): how stories test the UI
+- [ui-state pack](https://github.com/systemfsoftware/systemfsoftware/tree/main/compound-packs/ui-state): how a React application holds state
+- [ui-testing pack](https://github.com/systemfsoftware/systemfsoftware/tree/main/compound-packs/ui-testing): how stories test the UI
 - [CONTRIBUTING.md](CONTRIBUTING.md): development setup, checks, and pull requests
 
 ## Contributing
