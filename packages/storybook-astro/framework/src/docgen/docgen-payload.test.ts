@@ -1,0 +1,350 @@
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import { fileURLToPath } from 'node:url'
+import type { IndexEntry } from 'storybook/internal/types'
+import { afterAll, beforeAll, describe, expect, test } from 'vitest'
+import { buildDocgenPayload, type DocgenSource } from './docgen-payload.ts'
+import { createAstroDocgen } from './index.ts'
+import type { AstroDocgenInfo } from './types.ts'
+
+// Inside the package so `astro/types` resolves by walking up, matching the
+// existing .vitest-*-fixture-* convention.
+const packageDir = fileURLToPath(new URL('../..', import.meta.url))
+const workingDir = mkdtempSync(join(packageDir, '.vitest-payload-fixture-'))
+
+const write = (name: string, lines: string[]) => writeFileSync(join(workingDir, name), lines.join('\n'))
+
+beforeAll(() => {
+  write('Card.astro', [
+    '---',
+    '/**',
+    ' * A card that holds a heading.',
+    ' * @deprecated use Panel instead',
+    ' */',
+    'interface Props {',
+    '  /** Heading text. */',
+    '  title?: string;',
+    '}',
+    "const { title = 'Hello' } = Astro.props;",
+    '---',
+    '<h1>{title}</h1>',
+  ])
+
+  write('Badge.astro', [
+    '---',
+    "type Variant = 'primary' | 'secondary';",
+    'interface Props {',
+    '  variant?: Variant;',
+    '}',
+    "const { variant = 'primary' } = Astro.props;",
+    '---',
+    '<span class={variant}>Badge</span>',
+  ])
+
+  write('Link.astro', [
+    '---',
+    "const defaultLabel = 'Read more';",
+    'interface Props {',
+    '  href?: string | URL;',
+    '  label?: string;',
+    '  icon?: string | null;',
+    '  /** @ignore */',
+    '  trackingId?: string;',
+    '}',
+    "const { href = '/home', label = defaultLabel, icon = null, trackingId } = Astro.props;",
+    '---',
+    '<a href={href} data-tracking={trackingId}>{icon}{label}</a>',
+  ])
+
+  write('Link.stories.jsx', [
+    "import Link from './Link.astro';",
+    '',
+    'export default {',
+    "  title: 'Astro/Link',",
+    '  component: Link',
+    '};',
+    '',
+    'export const Default = {};',
+  ])
+
+  write('Badge.stories.jsx', [
+    "import Badge from './Badge.astro';",
+    '',
+    'export default {',
+    "  title: 'Astro/Badge',",
+    '  component: Badge',
+    '};',
+    '',
+    'export const Default = {};',
+  ])
+
+  write('Card.stories.jsx', [
+    "import Card from './Card.astro';",
+    '',
+    'export default {',
+    "  title: 'Astro/Card',",
+    '  component: Card',
+    '};',
+    '',
+    'export const Default = {};',
+  ])
+
+  write('Renamed.stories.jsx', [
+    "import TheCard from './Card.astro';",
+    '',
+    '/** The story file has the last word on the description. */',
+    'export default {',
+    "  title: 'Astro/Renamed',",
+    '  component: TheCard',
+    '};',
+    '',
+    'export const Default = {};',
+  ])
+
+  write('Widget.tsx', ['export const Widget = () => null;'])
+
+  write('Widget.stories.jsx', [
+    "import { Widget } from './Widget.tsx';",
+    '',
+    'export default {',
+    "  title: 'React/Widget',",
+    '  component: Widget',
+    '};',
+    '',
+    'export const Default = {};',
+  ])
+
+  write('Nameless.stories.jsx', [
+    'export default {',
+    "  title: 'Astro/Nameless'",
+    '};',
+    '',
+    'export const Default = { render: () => null };',
+  ])
+
+  write('Broken.stories.jsx', ['export default { title: "Astro/Broken", component: ((( };'])
+})
+
+afterAll(() => rmSync(workingDir, { recursive: true, force: true }))
+
+function storyEntry(importPath: string, title: string): IndexEntry {
+  return {
+    type: 'story',
+    subtype: 'story',
+    id: `${title.toLowerCase().replace(/\W+/g, '-')}--default`,
+    name: 'Default',
+    title,
+    importPath: `./${importPath}`,
+  } as IndexEntry
+}
+
+/** A stand-in extractor, so the branchy cases don't each warm a TypeScript program. */
+function stubSource(info: Partial<AstroDocgenInfo> = {}): DocgenSource & { calls: string[] } {
+  const calls: string[] = []
+
+  return {
+    calls,
+    async extract(path) {
+      calls.push(path)
+
+      return {
+        displayName: 'Card',
+        description: 'A card that holds a heading.',
+        props: {},
+        ...info,
+      }
+    },
+  }
+}
+
+const build = (entry: IndexEntry, docgen: DocgenSource) => buildDocgenPayload({ entry }, { docgen, workingDir })
+
+describe('an Astro story', () => {
+  test('reads the real component into a payload', async () => {
+    const docgen = createAstroDocgen({ projectRoot: workingDir })
+    const payload = await build(storyEntry('Card.stories.jsx', 'Astro/Card'), docgen)
+
+    expect(payload).toMatchObject({
+      id: 'astro-card',
+      name: 'Card',
+      path: './Card.stories.jsx',
+      description: 'A card that holds a heading.',
+      renderer: 'astro',
+    })
+    expect(payload?.argTypes?.title).toMatchObject({
+      name: 'title',
+      description: 'Heading text.',
+      // As the component writes it, as React's react-docgen tables show it.
+      table: { defaultValue: { summary: "'Hello'" } },
+    })
+
+    docgen.dispose()
+  })
+
+  test('describes the props in Markdown for AI agents, which never see argTypes', async () => {
+    const docgen = createAstroDocgen({ projectRoot: workingDir })
+    const payload = await build(storyEntry('Card.stories.jsx', 'Astro/Card'), docgen)
+
+    expect(payload?.apiDescription).toBe(
+      [
+        '## Props',
+        '',
+        '```',
+        'export type Props = {',
+        '  /**',
+        '    Heading text.',
+        '  */',
+        "  title?: string = 'Hello';",
+        '}',
+        '```',
+      ].join('\n'),
+    )
+
+    docgen.dispose()
+  })
+
+  test('spells out the members of an aliased literal union for AI agents', async () => {
+    const docgen = createAstroDocgen({ projectRoot: workingDir })
+    const payload = await build(storyEntry('Badge.stories.jsx', 'Astro/Badge'), docgen)
+
+    expect(payload?.apiDescription).toContain(
+      `  variant?: "primary" | "secondary" = 'primary';`,
+    )
+
+    docgen.dispose()
+  })
+
+  test('shows each default as the component writes it (issue #355)', async () => {
+    const docgen = createAstroDocgen({ projectRoot: workingDir })
+    const payload = await build(storyEntry('Link.stories.jsx', 'Astro/Link'), docgen)
+    const tableDefault = (name: string) => payload?.argTypes?.[name]?.table?.defaultValue
+
+    // A string on a type that isn't exactly `string` keeps its quotes.
+    expect(tableDefault('href')).toEqual({ summary: "'/home'" })
+    // An identifier on a `string` prop isn't quoted as if it were text.
+    expect(tableDefault('label')).toEqual({ summary: 'defaultLabel' })
+    expect(tableDefault('icon')).toEqual({ summary: 'null' })
+    expect(payload?.apiDescription).toContain("  href?: string | URL = '/home';")
+    expect(payload?.apiDescription).toContain('  label?: string = defaultLabel;')
+    expect(payload?.apiDescription).toContain('  icon?: string | null = null;')
+
+    docgen.dispose()
+  })
+
+  test('leaves out a prop marked @ignore, for the table and AI agents alike (issue #356)', async () => {
+    const docgen = createAstroDocgen({ projectRoot: workingDir })
+    const payload = await build(storyEntry('Link.stories.jsx', 'Astro/Link'), docgen)
+
+    expect(Object.keys(payload?.argTypes ?? {})).toEqual(['href', 'label', 'icon'])
+    expect(payload?.apiDescription).not.toContain('trackingId')
+
+    docgen.dispose()
+  })
+
+  test('carries the component JSDoc tags through', async () => {
+    const docgen = createAstroDocgen({ projectRoot: workingDir })
+    const payload = await build(storyEntry('Card.stories.jsx', 'Astro/Card'), docgen)
+
+    expect(payload?.jsDocTags.deprecated).toEqual(['use Panel instead'])
+
+    docgen.dispose()
+  })
+
+  test("names the component after the story file's import", async () => {
+    const payload = await build(storyEntry('Renamed.stories.jsx', 'Astro/Renamed'), stubSource())
+
+    expect(payload?.name).toBe('TheCard')
+  })
+
+  test("the story meta's own docblock wins over the component description", async () => {
+    const payload = await build(storyEntry('Renamed.stories.jsx', 'Astro/Renamed'), stubSource())
+
+    expect(payload?.description).toBe('The story file has the last word on the description.')
+  })
+})
+
+describe('slots on the Docgen Server path', () => {
+  test('each get a text control, which the preview seeds and locks from the story', async () => {
+    const docgen = stubSource({ slots: [{ name: 'default', description: 'The card body' }] })
+    const payload = await build(storyEntry('Card.stories.jsx', 'Astro/Card'), docgen)
+
+    expect(payload?.argTypes?.['slot-default']).toMatchObject({
+      name: 'default',
+      description: 'The card body',
+      control: { type: 'text' },
+      table: { category: 'slots' },
+    })
+    expect(payload?.apiDescription).toContain('- `default` (child content): The card body')
+  })
+})
+
+describe('a static build (issue #375)', () => {
+  test('turns off every control, since the stories are pre-rendered', async () => {
+    const docgen = stubSource({
+      props: {
+        title: {
+          name: 'title',
+          required: false,
+          type: { name: 'string' },
+          description: '',
+          defaultValue: null,
+        },
+      },
+      slots: [
+        { name: 'default', description: '' },
+        { name: 'footer', description: '' },
+      ],
+    })
+    const payload = await buildDocgenPayload(
+      { entry: storyEntry('Card.stories.jsx', 'Astro/Card') },
+      { docgen, workingDir, prerendered: true },
+    )
+
+    const rows = Object.values(payload?.argTypes ?? {})
+
+    expect(rows.length).toBeGreaterThan(2)
+    expect(rows.every((row) => row.control === false)).toBe(true)
+    // The table still describes the slot.
+    expect(payload?.argTypes?.['slot-footer']).toMatchObject({ name: 'footer' })
+  })
+})
+
+describe('stories that are not ours', () => {
+  test('a framework component is left to its own provider', async () => {
+    const docgen = stubSource()
+    const payload = await build(storyEntry('Widget.stories.jsx', 'React/Widget'), docgen)
+
+    expect(payload).toBeUndefined()
+    // Never opened: a .tsx is not something our extractor can read.
+    expect(docgen.calls).toEqual([])
+  })
+
+  test('a story with no meta.component is passed downstream', async () => {
+    expect(
+      await build(storyEntry('Nameless.stories.jsx', 'Astro/Nameless'), stubSource()),
+    ).toBeUndefined()
+  })
+
+  test('an indexed entry whose file is gone is passed downstream', async () => {
+    expect(
+      await build(storyEntry('Deleted.stories.jsx', 'Astro/Deleted'), stubSource()),
+    ).toBeUndefined()
+  })
+
+  test('a component that yields no docgen is passed downstream', async () => {
+    const empty: DocgenSource = { extract: async () => null }
+
+    expect(await build(storyEntry('Card.stories.jsx', 'Astro/Card'), empty)).toBeUndefined()
+  })
+})
+
+describe('a story file that will not parse', () => {
+  test('is reported on the payload rather than swallowed', async () => {
+    const payload = await build(storyEntry('Broken.stories.jsx', 'Astro/Broken'), stubSource())
+
+    expect(payload?.error?.name).toBe('Story file could not be parsed')
+    expect(payload?.error?.message).toContain('./Broken.stories.jsx')
+    // The name still falls back to the title so the docs page has a heading.
+    expect(payload?.name).toBe('Broken')
+  })
+})

@@ -19,3 +19,4 @@ apps/site-e2e/artifacts/
 .cache/
 temp/
 .vitest/
+.vitest-*/

@@ -1,0 +1,73 @@
+// import 'astro/runtime/server/astro-island';
+
+import { enhanceArgTypes } from 'storybook/internal/docs-tools'
+import * as astroRenderer from 'virtual:storybook-astro-renderer'
+
+import { defaultPreviewParameters } from './preview-defaults.ts'
+import { lockNonTextSlotControls, seedSlotArgs } from './slotArgs.ts'
+
+export const parameters = {
+  renderer: 'astro',
+  ...defaultPreviewParameters,
+}
+
+function isAstroComponent(component: unknown): boolean {
+  return (
+    typeof component === 'function' &&
+    component !== null &&
+    'isAstroComponentFactory' in component &&
+    (component as { isAstroComponentFactory: boolean }).isAstroComponentFactory === true
+  )
+}
+
+// In static mode, Astro components are pre-rendered and cannot be re-rendered with different args.
+// Disable controls for Astro components to prevent user confusion.
+function disablePrerenderedControls(context: {
+  component: unknown
+  argTypes: Record<string, Record<string, unknown>>
+  initialArgs?: Record<string, unknown>
+}) {
+  const { component, argTypes, initialArgs = {} } = context
+
+  if (!isAstroComponent(component)) {
+    return argTypes
+  }
+
+  const disabledArgTypes: Record<string, Record<string, unknown>> = {}
+
+  for (const [key, argType] of Object.entries(argTypes)) {
+    disabledArgTypes[key] = { ...argType, control: false }
+  }
+
+  // An arg with no row yet, such as `slots` holding a component or a
+  // pass-through `class`, gets one from Storybook's inference after this runs,
+  // in the preview or (with the Docgen Server) in the manager. A row here keeps
+  // that inferred control off too (issue #375).
+  for (const key of Object.keys(initialArgs)) {
+    disabledArgTypes[key] ??= { control: false }
+  }
+
+  disabledArgTypes['_astroPrerendered'] = {
+    name: 'Pre-rendered',
+    description: 'This Astro component is pre-rendered at build time. Controls are unavailable in static builds.',
+    control: false,
+    table: { category: 'ℹ️ Astro' },
+  }
+
+  return disabledArgTypes
+}
+
+// `enhanceArgTypes` reads the component's `__docgenInfo` through
+// `parameters.docs.extractArgTypes`, so it must run before the static-mode pass
+// — otherwise the props it adds arrive too late to be disabled and would show
+// live controls that do nothing (docs/specs/docgen.md#design-decisions).
+export const argTypesEnhancers = [
+  enhanceArgTypes,
+  lockNonTextSlotControls,
+  ...(astroRenderer.isStaticMode ? [disablePrerenderedControls] : []),
+]
+
+export const argsEnhancers = [seedSlotArgs]
+
+export { applyDecorators } from './decorators.ts'
+export { render, renderToCanvas } from './render.tsx'

@@ -1,0 +1,74 @@
+import type { CompatibleString, Options, StorybookConfig as StorybookConfigBase } from 'storybook/internal/types'
+import type { InlineConfig } from 'vite'
+import type { AstroDocgenOptions } from './docgen/index.ts'
+import type { Integration } from './integrations/index.ts'
+import type { SanitizationOptions } from './lib/sanitization.ts'
+import type { StoryRulesOptions } from './rules-options.ts'
+import type { StorybookFontFamily } from './vitePluginAstroFonts.ts'
+
+type FrameworkName = CompatibleString<'@systemfsoftware/storybook-astro-framework'>
+
+export type { AstroDocgenOptions, Integration, SanitizationOptions, StorybookFontFamily, StoryRulesOptions }
+export type RenderMode = 'server' | 'static'
+
+export type ServerBuildOptions = {
+  serverUrl?: string
+  authToken?: string
+  authHeader?: string
+}
+
+export type RenderStoryInput = {
+  id: string
+  title?: string
+  name?: string
+}
+
+type BaseFrameworkOptions = {
+  integrations?: Integration[]
+  sanitization?: SanitizationOptions
+  resolveFrom?: string
+  /**
+   * Astro font families to resolve and inject as @font-face CSS during story
+   * rendering. Pass the same array you have in your `astro.config.ts` under
+   * `fonts:`. Honored in development and static builds. Server builds define
+   * the font CSS variables in the iframe head, but `<Font>` throws
+   * FontFamilyNotFound there because the render server doesn't receive the
+   * fonts yet. The `local` provider isn't supported (#244).
+   */
+  fonts?: StorybookFontFamily[]
+  /**
+   * Controls the props table and description autodocs generates from a
+   * component's frontmatter JSDoc. Pass `false` to turn extraction off
+   * entirely (docs/specs/docgen.md).
+   */
+  docgen?: false | AstroDocgenOptions
+}
+
+type ServerFrameworkOptions = BaseFrameworkOptions & {
+  renderMode?: 'server'
+  storyRules?: StoryRulesOptions
+  server?: ServerBuildOptions
+}
+
+type StaticFrameworkOptions = BaseFrameworkOptions & {
+  renderMode: 'static'
+  storyRules?: StoryRulesOptions
+  server?: never
+}
+
+export type FrameworkOptions = ServerFrameworkOptions | StaticFrameworkOptions
+
+type StorybookConfigFramework = {
+  framework: {
+    name: FrameworkName
+    options?: FrameworkOptions
+  }
+}
+
+type ViteFinal = (config: InlineConfig, options: Options) => InlineConfig | Promise<InlineConfig>
+
+export type StorybookConfigVite = {
+  viteFinal?: ViteFinal
+}
+
+export type StorybookConfig = Omit<StorybookConfigBase, 'framework'> & StorybookConfigFramework & StorybookConfigVite

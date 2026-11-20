@@ -1,0 +1,142 @@
+/**
+ * Astro component references can't be JSON-serialized, so when a story passes an
+ * Astro component as a prop or as slot content, the client replaces it with this
+ * plain marker before sending the render request. The server reconstructs it: a
+ * marker used as a prop is resolved back to the real component factory (the
+ * parent template renders it via `<Comp />`); a marker used as slot content is
+ * rendered to an HTML string (the Astro Container only accepts string slots).
+ *
+ * Only the `moduleId` needs to cross the boundary — the server loads the
+ * component from it exactly like it loads the top-level story component.
+ *
+ * Scope: a marker carries a bare component reference. To give a child its own
+ * props and slot content, wrap it in a configured-component slot descriptor
+ * ({@link isAstroComponentSlot}). Passing a non-Astro framework component as a
+ * slot/prop is not supported yet.
+ */
+export const ASTRO_COMPONENT_MARKER = '__astroComponent'
+
+export type AstroComponentMarker = {
+  [ASTRO_COMPONENT_MARKER]: true
+  moduleId: string
+}
+
+/**
+ * A value is a marker only when both keys are present and well-typed, so a
+ * legitimate plain-object arg can't be mistaken for one.
+ */
+export function isAstroComponentMarker(value: unknown): value is AstroComponentMarker {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    (value as Record<string, unknown>)[ASTRO_COMPONENT_MARKER] === true &&
+    typeof (value as Record<string, unknown>).moduleId === 'string'
+  )
+}
+
+/**
+ * Detects an Astro component factory — the callable produced by importing a
+ * `.astro` file. On the client this is the stub from `vitePluginAstroComponentMarker`
+ * (which sets `isAstroComponentFactory` and `moduleId`); on the server (and in the
+ * Vitest/portable path) it's the real Astro factory, which also sets the flag.
+ */
+export function isAstroComponentFactory(value: unknown): boolean {
+  return (
+    typeof value === 'function' &&
+    'isAstroComponentFactory' in value &&
+    (value as { isAstroComponentFactory?: unknown }).isAstroComponentFactory === true
+  )
+}
+
+/**
+ * Detects a "configured" component slot: a plain object that names a child
+ * `component` (a marker or a factory) plus optional `props` and `slots` of its
+ * own. This lets a story drop a child component *with its own content* into a
+ * parent's slot, mixed freely with plain strings and bare component references.
+ *
+ * Only objects whose `component` is itself a recognized Astro reference match,
+ * so an ordinary plain-object slot value is never mistaken for a descriptor.
+ */
+export function isAstroComponentSlot(
+  value: unknown,
+): value is { component: unknown; props?: Record<string, unknown>; slots?: Record<string, unknown> } {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false
+  }
+
+  const component = (value as { component?: unknown }).component
+
+  return isAstroComponentMarker(component) || isAstroComponentFactory(component)
+}
+
+/**
+ * Recursively replaces Astro component factories in an args/slots value with
+ * serializable {@link AstroComponentMarker}s so the value can cross the JSON
+ * render boundary. Walks arrays and nested objects. A factory missing its
+ * `moduleId` can't be turned into a reference, so it's dropped with an error —
+ * unless it's an SVG-as-component factory (see below), which is passed through
+ * as-is instead.
+ */
+export function serializeAstroComponentMarkers(value: unknown, depth = 0): unknown {
+  if (isAstroComponentFactory(value)) {
+    const moduleId = (value as { moduleId?: unknown }).moduleId
+
+    if (typeof moduleId === 'string') {
+      return { [ASTRO_COMPONENT_MARKER]: true, moduleId } satisfies AstroComponentMarker
+    }
+
+    // Astro's `.svg`-as-component factories (`astro/assets/runtime`'s
+    // `createSvgComponent`) never get a moduleId — Astro merges the image
+    // metadata directly onto the factory function instead. This only reaches
+    // here in the Vitest/portable-stories path (a real Vite SSR environment,
+    // where a bare `.svg` import already resolves to the real factory); the
+    // browser never produces one (it gets plain `ImageMetadata`, which
+    // `vitePluginAstroSvgComponentMarker` tags with a moduleId marker instead —
+    // see that file's docstring for the full round trip). Since the factory
+    // here is already real and same-process, pass it through unchanged rather
+    // than trying to serialize a reference to it.
+    if (typeof (value as { src?: unknown }).src === 'string') {
+      return value
+    }
+
+    console.error(
+      '[storybook-astro] An Astro component passed in args has no moduleId and cannot be rendered.',
+    )
+
+    return undefined
+  }
+
+  if (depth >= 10) {
+    return value
+  }
+
+  if (Array.isArray(value)) {
+    return value.map((item) => serializeAstroComponentMarkers(item, depth + 1))
+  }
+
+  // Only recurse into plain objects. Other object types (Date, RegExp, Map,
+  // class instances, …) can't hold an Astro factory and must pass through
+  // untouched — walking them with Object.entries would clobber a Date into an
+  // empty object, losing it when the args are JSON-serialized for transport.
+  if (isPlainObject(value)) {
+    const out: Record<string, unknown> = {}
+
+    for (const [key, nested] of Object.entries(value)) {
+      out[key] = serializeAstroComponentMarkers(nested, depth + 1)
+    }
+
+    return out
+  }
+
+  return value
+}
+
+function isPlainObject(value: unknown): value is Record<string, unknown> {
+  if (typeof value !== 'object' || value === null || Array.isArray(value)) {
+    return false
+  }
+
+  const prototype = Object.getPrototypeOf(value)
+
+  return prototype === Object.prototype || prototype === null
+}
