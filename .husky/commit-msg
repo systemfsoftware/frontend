@@ -1,3 +1,10 @@
 #!/usr/bin/env bash
 set -e
-sandbox --pass-env GIT_INDEX_FILE --pass-env GIT_DIR --pass-env GIT_WORK_TREE -- pnpm exec commitlint --edit "$1"
+if sh .husky/vendored-only; then
+  exit 0
+fi
+if [ ! -x ./node_modules/.bin/commitlint ]; then
+  echo "commit-msg: ./node_modules/.bin/commitlint is missing. Run: pnpm install" >&2
+  exit 1
+fi
+sandbox --pass-env GIT_INDEX_FILE --pass-env GIT_DIR --pass-env GIT_WORK_TREE -- ./node_modules/.bin/commitlint --edit "$1"

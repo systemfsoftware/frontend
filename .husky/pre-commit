@@ -1,8 +1,27 @@
 #!/usr/bin/env sh
-# Skip during a merge: the staged set is the merge result, not authored work,
-# and lint-staged's stash/restore corrupts in-progress merge state.
-if [ -e "$(git rev-parse --git-path MERGE_HEAD)" ]; then
+# Skip while a merge, rebase or cherry-pick is in progress: the staged set is
+# the operation's result, not authored work, and a formatter must not rewrite it.
+for state in MERGE_HEAD REBASE_HEAD CHERRY_PICK_HEAD; do
+  if [ -e "$(git rev-parse --git-path "$state")" ]; then
+    exit 0
+  fi
+done
+
+# A commit that touches only vendored subtrees is upstream's content.
+if sh .husky/vendored-only; then
   exit 0
 fi
 
-sandbox --pass-env GIT_INDEX_FILE --pass-env GIT_DIR --pass-env GIT_WORK_TREE -- pnpm precommit
+sh .husky/check-conflict-markers || exit 1
+
+if [ ! -x ./node_modules/.bin/lint-staged ]; then
+  echo "pre-commit: ./node_modules/.bin/lint-staged is missing. Run: pnpm install" >&2
+  exit 1
+fi
+
+# lint-staged runs by its binary path (no package-manager boot) and with
+# --no-stash: no backup stash is written, so a commit adds no stash objects.
+# Formatters re-stage what they fix; only an unfixable error fails the commit.
+# A formatter on a partly staged file stages the whole file; to commit only some
+# hunks of it, run `git stash push --keep-index` first.
+sandbox --pass-env GIT_INDEX_FILE --pass-env GIT_DIR --pass-env GIT_WORK_TREE -- ./node_modules/.bin/lint-staged --no-stash --config .lintstagedrc.js
