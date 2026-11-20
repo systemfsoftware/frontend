@@ -53,7 +53,7 @@ catalog:
   storybook: 10.6.2
   tsdown: 0.23.0
   tstyche: 7.2.5
-  turbo: 2.11.7
+  turbo: 2.11.11
   type-fest: ^5.10.0
   typescript: 7.0.2
   vite: 8.3.4
