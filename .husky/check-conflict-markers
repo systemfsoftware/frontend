@@ -1,0 +1,31 @@
+#!/usr/bin/env sh
+# Fails when a staged file holds an unresolved conflict: an opener, a
+# `=======` line and a closer, in that order, at column 0. It reads each staged
+# blob, not the diff, so CRLF files, diff.noprefix and non-ASCII paths behave,
+# and a lone `=======` heading underline in prose never counts. It fails closed
+# when a staged blob cannot be read.
+tmp=$(mktemp) || exit 1
+trap 'rm -f "$tmp"' EXIT
+status=0
+files=$(git -c core.quotePath=false diff --cached --name-only --diff-filter=ACMR) || exit 1
+while IFS= read -r file; do
+  [ -n "$file" ] || continue
+  case "$file" in repos/* | subtrees.toml) continue ;; esac
+  if ! git show ":$file" > "$tmp" 2>/dev/null; then
+    echo "pre-commit: cannot read staged file: $file" >&2
+    status=1
+    continue
+  fi
+  if awk '
+    s == 0 && /^<<<<<<<( |\r?$)/ { s = 1; next }
+    s == 1 && /^=======\r?$/ { s = 2; next }
+    s == 2 && /^>>>>>>>( |\r?$)/ { s = 3 }
+    END { exit s == 3 ? 0 : 1 }
+  ' "$tmp"; then
+    echo "pre-commit: unresolved conflict markers in $file" >&2
+    status=1
+  fi
+done <<LIST
+$files
+LIST
+exit $status

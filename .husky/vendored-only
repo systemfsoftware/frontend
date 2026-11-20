@@ -1,0 +1,6 @@
+#!/usr/bin/env sh
+# Exit 0 when the staged paths are all vendored subtree content (repos/ and
+# subtrees.toml): upstream's files and commit messages are not this repo's to grade.
+staged=$(git -c core.quotePath=false diff --cached --name-only) || exit 1
+[ -n "$staged" ] || exit 1
+! printf '%s\n' "$staged" | grep -qvE '^(repos/.*|subtrees\.toml)$'

@@ -1,4 +1,6 @@
 #!/usr/bin/env sh
+# Only the guard against pushing a stale main lives here; format, lint, typecheck
+# and tests run in CI.
 set -e
 remote=origin
 
@@ -19,8 +21,3 @@ if [ "$branch" = "main" ]; then
     fi
   fi
 fi
-
-pnpm --silent format:check
-pnpm --silent lint
-base=$(git merge-base HEAD "$remote/main")
-TURBO_SCM_BASE=$base TURBO_SCM_HEAD=HEAD pnpm exec turbo run typecheck lint --affected --output-logs=errors-only

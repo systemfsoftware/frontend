@@ -54,6 +54,14 @@ const refusedInside = async (worktree: string, script: string, env?: Record<stri
   return outcome
 }
 
+const looseObjects = async (worktree: string): Promise<number> => {
+  const report = await must('git', ['count-objects', '-v'], worktree)
+  return Number(/^count: (\d+)$/m.exec(report)?.[1] ?? NaN)
+}
+
+const newlyReachable = async (worktree: string): Promise<number> =>
+  (await must('git', ['rev-list', '--objects', 'HEAD', '^HEAD~1'], worktree)).split('\n').length
+
 const providesSandbox = (dir: string): Promise<boolean> =>
   Deno.stat(`${dir}/sandbox`).then((info) => info.isFile, () => false)
 
@@ -86,19 +94,23 @@ Deno.test('git hooks run their dependency code inside the sandbox from a linked 
       )
     })
 
-    await t.step('a build commit runs lint-staged through its stash cycle and lands formatted', async () => {
+    await t.step('a build commit lands formatted and writes only the objects of the commit itself', async () => {
+      const before = await looseObjects(worktree)
       const outcome = await run('git', ['commit', '-m', 'build(repo): probe'], { cwd: worktree })
-      expect(
-        outcome.code === 0 && outcome.out.includes('Done backing up original state'),
-        'the commit or its lint-staged stash cycle failed',
-        outcome,
-      )
+      const after = await looseObjects(worktree)
+      const reachable = await newlyReachable(worktree)
+      expect(outcome.code === 0, 'the commit failed in the hooks', outcome)
       const subject = await must('git', ['log', '-1', '--format=%s'], worktree)
       const committed = await must('git', ['show', `HEAD:${PROBE}`], worktree)
       const stashes = await must('git', ['stash', 'list'], worktree)
       expect(
         subject === 'build(repo): probe' && committed === '{ "probe": 1 }' && stashes === '',
         'the commit did not land formatted and clean',
+        outcome,
+      )
+      expect(
+        after - before <= reachable,
+        `lint-staged wrote ${after - before} loose objects for a commit that adds ${reachable}: a backup stash`,
         outcome,
       )
     })
@@ -109,11 +121,53 @@ Deno.test('git hooks run their dependency code inside the sandbox from a linked 
       const subject = await must('git', ['log', '-1', '--format=%s'], worktree)
       const committed = await must('git', ['show', `HEAD:${PROBE}`], worktree)
       expect(
-        landed.code === 0 && landed.out.includes('Done backing up original state') &&
-          subject === 'build(repo): named path probe' && committed === '{ "probe": 2 }',
+        landed.code === 0 && subject === 'build(repo): named path probe' && committed === '{ "probe": 2 }',
         'a commit of named paths failed in the hooks',
         landed,
       )
+    })
+
+    const refusesConflict = async (path: string, text: string): Promise<void> => {
+      await Deno.mkdir(`${worktree}/${path.slice(0, path.lastIndexOf('/'))}`, { recursive: true })
+      await Deno.writeTextFile(`${worktree}/${path}`, text)
+      await must('git', ['add', path], worktree)
+      const head = await must('git', ['rev-parse', 'HEAD'], worktree)
+      const outcome = await run('git', ['commit', '-m', 'build(repo): marker probe'], { cwd: worktree })
+      const after = await must('git', ['rev-parse', 'HEAD'], worktree)
+      expect(
+        outcome.code !== 0 && after === head && outcome.out.includes('unresolved conflict markers'),
+        `a commit with conflict markers in ${path} was not refused`,
+        outcome,
+      )
+      await must('git', ['rm', '-q', '--cached', '-f', path], worktree)
+      await Deno.remove(`${worktree}/${path}`)
+    }
+
+    await t.step('a staged file with conflict markers is refused', async () => {
+      await refusesConflict('nix/marker-probe.json', '<<<<<<< HEAD\n{"probe":3}\n=======\n{"probe":4}\n>>>>>>> other\n')
+    })
+
+    await t.step('conflict markers in a CRLF file or under a non-ASCII path are refused', async () => {
+      await refusesConflict('nix/crlf-probe.txt', '<<<<<<< HEAD\r\na\r\n=======\r\nb\r\n>>>>>>> other\r\n')
+      await refusesConflict('nix/caf\u00e9-probe.txt', '<<<<<<< HEAD\na\n=======\nb\n>>>>>>> other\n')
+    })
+
+    await t.step('prose that looks like a marker is committed', async () => {
+      const prose = 'nix/hook-marker-probe.md'
+      await Deno.writeTextFile(`${worktree}/${prose}`, '>>>>>>> note\n\n# Title\n=======\n\n<<<<<<< HEAD\n')
+      await must('git', ['add', prose], worktree)
+      const outcome = await run('git', ['commit', '-m', 'build(repo): prose probe'], { cwd: worktree })
+      expect(outcome.code === 0, 'ordinary prose with marker-like text was refused', outcome)
+    })
+
+    await t.step('a commit that touches only vendored subtrees skips both hooks', async () => {
+      const vendored = 'repos/hook-vendored-probe.txt'
+      await Deno.writeTextFile(`${worktree}/${vendored}`, '<<<<<<< HEAD\na\n=======\nb\n>>>>>>> other\n')
+      await must('git', ['add', '-f', vendored], worktree)
+      const outcome = await run('git', ['commit', '-m', "Squashed 'repos/probe/' changes"], { cwd: worktree })
+      expect(outcome.code === 0, 'a vendored-only commit was graded', outcome)
+      const bad = await run('git', ['commit', '--allow-empty', '-m', 'not conventional'], { cwd: worktree })
+      expect(bad.code !== 0, 'a commit with no staged paths skipped the message check', bad)
     })
 
     await t.step('the git directory outside the bound paths is unreadable', async () => {
