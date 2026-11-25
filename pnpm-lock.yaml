@@ -168,8 +168,8 @@ catalogs:
       specifier: 2.0.0-beta.85
       version: 2.0.0-beta.85
     '@alchemy.run/github':
-      specifier: 2.0.0-beta.85
-      version: 2.0.0-beta.85
+      specifier: 2.0.0-beta.87
+      version: 2.0.0-beta.87
     '@babel/core':
       specifier: 8.0.6
       version: 8.0.6
@@ -411,7 +411,7 @@ importers:
         version: 2.0.0-beta.85(@effect/platform-node@4.1.0(effect@4.1.0)(redis@6.3.1(@opentelemetry/api@1.10.0)))(@types/node@24.19.1)(alchemy@2.0.0-beta.85(@effect/platform-node@4.1.0(effect@4.1.0)(redis@6.3.1(@opentelemetry/api@1.10.0)))(@types/react@19.3.0)(effect@4.1.0)(vite@8.3.4(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.2))(effect@4.1.0)(typescript@7.0.2)(vite@8.3.4(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))
       '@alchemy.run/github':
         specifier: 'catalog:'
-        version: 2.0.0-beta.85(alchemy@2.0.0-beta.85(@effect/platform-node@4.1.0(effect@4.1.0)(redis@6.3.1(@opentelemetry/api@1.10.0)))(@types/react@19.3.0)(effect@4.1.0)(vite@8.3.4(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.2))(effect@4.1.0)
+        version: 2.0.0-beta.87(alchemy@2.0.0-beta.85(@effect/platform-node@4.1.0(effect@4.1.0)(redis@6.3.1(@opentelemetry/api@1.10.0)))(@types/react@19.3.0)(effect@4.1.0)(vite@8.3.4(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.2))(effect@4.1.0)
       '@babel/core':
         specifier: 'catalog:'
         version: 8.0.6
@@ -953,10 +953,10 @@ packages:
       '@effect/platform-bun':
         optional: true
 
-  '@alchemy.run/github@2.0.0-beta.85':
-    resolution: {integrity: sha512-lKQZTlqYo/iOK4Zbskd7riff9nqkMNgtStdlmgAUD/IvR+FweXftfcjZD9u9k/Z3h4RguJi4IduwFudSpLl6QQ==}
+  '@alchemy.run/github@2.0.0-beta.87':
+    resolution: {integrity: sha512-6OjWZ+uaLkyUhBY5l8iuVj+3Mf0JNsSE+VHVR0TAALx7/GYiZbWjPHu9lM6BksGuHHamStIVZs16RJ33srPm9w==}
     peerDependencies:
-      alchemy: 2.0.0-beta.85
+      alchemy: 2.0.0-beta.87
       effect: 4.1.0
 
   '@alchemy.run/node-utils@2.0.0-beta.85':
@@ -1345,8 +1345,13 @@ packages:
     peerDependencies:
       effect: 4.1.0
 
-  '@distilled.cloud/github@1.0.0-rc.18':
-    resolution: {integrity: sha512-SX5EofqqjaHRnTw0RC83qvEQZr11/RcNxqjdsn7kteHvni+1DIgnlRfeHoUD2rVyQEyEPWCYnIOFWysgXUOvSg==}
+  '@distilled.cloud/core@1.0.0-rc.20':
+    resolution: {integrity: sha512-uoZ8W5QhxcSyyM6/XZzRJCKc55FC4fZfXWX2ypx8AOIC4PTOtdyDZ3fswGpVp/SRiC4ua0HYGhAgFA8Ub7Ot5Q==}
+    peerDependencies:
+      effect: 4.1.0
+
+  '@distilled.cloud/github@1.0.0-rc.20':
+    resolution: {integrity: sha512-Mgt2jvOoSrbiBtH2S1boy/R66uSAmC3eBS7eDkk/AkEtnbAXhwwaoWWKQeB3NoSHF7yDEHELhfG1TOs/EsgP6Q==}
     peerDependencies:
       effect: 4.1.0
 
@@ -6068,10 +6073,10 @@ snapshots:
       effect: 4.1.0
       rolldown: 1.2.13
 
-  '@alchemy.run/github@2.0.0-beta.85(alchemy@2.0.0-beta.85(@effect/platform-node@4.1.0(effect@4.1.0)(redis@6.3.1(@opentelemetry/api@1.10.0)))(@types/react@19.3.0)(effect@4.1.0)(vite@8.3.4(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.2))(effect@4.1.0)':
+  '@alchemy.run/github@2.0.0-beta.87(alchemy@2.0.0-beta.85(@effect/platform-node@4.1.0(effect@4.1.0)(redis@6.3.1(@opentelemetry/api@1.10.0)))(@types/react@19.3.0)(effect@4.1.0)(vite@8.3.4(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.2))(effect@4.1.0)':
     dependencies:
-      '@distilled.cloud/core': 1.0.0-rc.18(effect@4.1.0)
-      '@distilled.cloud/github': 1.0.0-rc.18(effect@4.1.0)
+      '@distilled.cloud/core': 1.0.0-rc.20(effect@4.1.0)
+      '@distilled.cloud/github': 1.0.0-rc.20(effect@4.1.0)
       alchemy: 2.0.0-beta.85(@effect/platform-node@4.1.0(effect@4.1.0)(redis@6.3.1(@opentelemetry/api@1.10.0)))(@types/react@19.3.0)(effect@4.1.0)(vite@8.3.4(@types/node@24.19.1)(esbuild@0.28.2)(jiti@2.7.0)(yaml@2.9.1))(ws@8.22.2)
       effect: 4.1.0
       libsodium-wrappers: 0.8.4
@@ -6505,9 +6510,13 @@ snapshots:
     dependencies:
       effect: 4.1.0
 
-  '@distilled.cloud/github@1.0.0-rc.18(effect@4.1.0)':
+  '@distilled.cloud/core@1.0.0-rc.20(effect@4.1.0)':
     dependencies:
-      '@distilled.cloud/core': 1.0.0-rc.18(effect@4.1.0)
+      effect: 4.1.0
+
+  '@distilled.cloud/github@1.0.0-rc.20(effect@4.1.0)':
+    dependencies:
+      '@distilled.cloud/core': 1.0.0-rc.20(effect@4.1.0)
       effect: 4.1.0
 
   '@distilled.cloud/iceberg@1.0.0-rc.18(effect@4.1.0)':
