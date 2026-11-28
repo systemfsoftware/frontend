@@ -15,7 +15,7 @@
     };
     # mkPnpmConsumerStore and mkPnpmWorkspacePackages: the pnpm store and the package tarballs.
     pnpm-release-management = {
-      url = "github:systemfsoftware/pnpm-release-management/ebebdfebf30205b508840ea55801d55283af7648";
+      url = "github:systemfsoftware/pnpm-release-management/3da32f4fa6f01af0a9a0cdab5cc8eb5d134b2de3";
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.comment-checker.follows = "comment-checker";
       inputs.importPnpmLock.follows = "importPnpmLock";

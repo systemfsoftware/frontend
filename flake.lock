@@ -1,5 +1,26 @@
 {
   "nodes": {
+    "bend": {
+      "inputs": {
+        "nixpkgs": [
+          "pnpm-release-management",
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1794682988,
+        "narHash": "sha256-9x/0tizq1exCQxTec4xMDOj1biv5b2R6kWIi73P87zM=",
+        "owner": "bendlang",
+        "repo": "bend",
+        "rev": "f0cf0a7c573145501981c44d9c33e326185f008e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bendlang",
+        "repo": "bend",
+        "type": "github"
+      }
+    },
     "comment-checker": {
       "inputs": {
         "nixpkgs": [
@@ -462,6 +483,7 @@
     },
     "pnpm-release-management_2": {
       "inputs": {
+        "bend": "bend",
         "comment-checker": [
           "comment-checker"
         ],
@@ -473,17 +495,17 @@
         ]
       },
       "locked": {
-        "lastModified": 1794380064,
-        "narHash": "sha256-zVAOw/SKMFWra0kBhHX9a4vCOQ+lVPTP4jaB3RDTY2U=",
+        "lastModified": 1795889021,
+        "narHash": "sha256-pCPNr7mzKPuRQ1LxiwPCr3WW8YThm8KY/7y/p727Db4=",
         "owner": "systemfsoftware",
         "repo": "pnpm-release-management",
-        "rev": "ebebdfebf30205b508840ea55801d55283af7648",
+        "rev": "3da32f4fa6f01af0a9a0cdab5cc8eb5d134b2de3",
         "type": "github"
       },
       "original": {
         "owner": "systemfsoftware",
         "repo": "pnpm-release-management",
-        "rev": "ebebdfebf30205b508840ea55801d55283af7648",
+        "rev": "3da32f4fa6f01af0a9a0cdab5cc8eb5d134b2de3",
         "type": "github"
       }
     },
