@@ -2,7 +2,6 @@ import { existsSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 
 const ROOT = process.cwd()
-const DPRINT = join(ROOT, 'bin/dprint')
 const TOLERATE_A_ZERO_FILE_SET = '--no-error-on-unmatched-pattern'
 
 // Each package owns its oxlint config, the way the monorepo does; a staged
@@ -27,7 +26,7 @@ const packageRootOf = (file) => {
 /** @type {import('lint-staged').Configuration} */
 export default {
   '*.{js,jsx,ts,tsx,mjs,cjs}': (filenames) => {
-    const commands = [`${DPRINT} fmt --allow-no-files -- ${filenames.join(' ')}`]
+    const commands = [`dprint fmt --allow-no-files -- ${filenames.join(' ')}`]
     const byPackage = new Map()
     for (const file of filenames) {
       const packageRoot = packageRootOf(file)
@@ -46,6 +45,6 @@ export default {
     return commands
   },
   '*.{json,jsonc,md,yaml,yml,toml}': (filenames) => [
-    `${DPRINT} fmt --allow-no-files -- ${filenames.join(' ')}`,
+    `dprint fmt --allow-no-files -- ${filenames.join(' ')}`,
   ],
 }
