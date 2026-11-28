@@ -21,6 +21,9 @@
       inputs.importPnpmLock.follows = "importPnpmLock";
     };
     systemfsoftware.url = "github:systemfsoftware/systemfsoftware/d4aca35674f015b33748891e6378b33a055d1234";
+    # bwrap-sandboxed dprint from the org fork; its build is in the org cache. No
+    # nixpkgs follows, so the cached derivation is used instead of a rebuild.
+    dprint.url = "github:systemfsoftware/dprint";
     # The pnpm store is hashless: each tarball's lockfile integrity is its fetch hash, so a lockfile change needs no hash edit.
     importPnpmLock = {
       url = "github:Scrumplex/importPnpmLock.nix";
@@ -28,7 +31,7 @@
     };
   };
 
-  outputs = { self, nixpkgs, comment-checker, pnpm-release-management, systemfsoftware, importPnpmLock }:
+  outputs = { self, nixpkgs, comment-checker, pnpm-release-management, systemfsoftware, importPnpmLock, dprint }:
     let
       lib = nixpkgs.lib;
       systems = [ "x86_64-linux" "aarch64-linux" ];
@@ -56,7 +59,6 @@
       packages = forEachSystem (pkgs:
         let
           system = pkgs.stdenv.hostPlatform.system;
-          dprint = pkgs.callPackage ./nix/dprint.nix { dprintConfig = ./dprint.json; };
           unwrapped = comment-checker.packages.${system}.comment-checker;
           sandboxed = pkgs.callPackage ./nix/comment-checker-sandbox.nix {
             comment-checker = unwrapped;
@@ -64,7 +66,7 @@
           sandbox = pkgs.callPackage "${pnpm-release-management}/nix/sandbox/default.nix" { };
           workspace = workspaceOf pkgs;
           own = {
-            inherit dprint sandbox;
+            inherit sandbox;
             pnpm-store = pnpm-release-management.lib.mkPnpmConsumerStore {
               inherit pkgs;
               src = consumerSrc;
@@ -75,7 +77,6 @@
             }).sandbox-proofs;
             comment-checker = sandboxed;
             comment-checker-unwrapped = unwrapped;
-            default = dprint;
           };
           clashes = builtins.attrNames (builtins.intersectAttrs own workspace);
         in
@@ -106,7 +107,7 @@
         in {
         default = pkgs.mkShell {
           packages = [
-            own.dprint
+            dprint.packages.${pkgs.stdenv.hostPlatform.system}.default
             own.comment-checker
             own.sandbox
             pnpm-release-management.packages.${pkgs.stdenv.hostPlatform.system}.release-tools
