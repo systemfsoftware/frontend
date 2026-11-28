@@ -111,7 +111,7 @@
             own.sandbox
             pnpm-release-management.packages.${pkgs.stdenv.hostPlatform.system}.release-tools
             pkgs.actionlint
-            pkgs.nodejs_24
+            pkgs.nodejs_26
             pkgs.pnpm_12
             pkgs.deno
           ] ++ pkgs.lib.optionals pkgs.stdenv.hostPlatform.isLinux [ playwrightBrowsersAnchor ];
